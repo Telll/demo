@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- jQuery -->
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<!-- jQuery mobile -->
+<link id='telll-mobile-css' rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<!-- jQuery UI -->
+<link rel='stylesheet' id='telll-ui-css'  href='js/jquery-ui-1.11.4/jquery-ui.min.css' type='text/css' media='all' />
+<script type='text/javascript' src='js/jquery-ui-1.11.4/jquery-ui.min.js'></script>
+<!-- Projekktor -->
+<link rel='stylesheet' id='telll-projekktor-css'  href='js/projekktor/themes/maccaco/projekktor.style.css' type='text/css' media='all' />
+<script type='text/javascript' src='js/projekktor/projekktor-1.3.09.min.js'></script>
+<!-- Vimeo -->
+<!-- Youtube -->
+<!-- telll  -->
+<link rel='stylesheet' id='telll-css'  href='css/telll.css' type='text/css' media='all' />
+<link rel='stylesheet' id='player-css'  href='css/player.css' type='text/css' media='all' />
+<script type='text/javascript' src='js/telll.js'></script>
+<script type='text/javascript' src='js/player.js'></script>
+
+<!-- iPad, iPhone icons -->
+<link rel="apple-touch-icon" href="img/touch-icon-57.png">
+<link rel="apple-touch-icon" sizes="76x76" href="img/touch-icon-76.png">
+<link rel="apple-touch-icon" sizes="120x120" href="img/touch-icon-120.png">
+<link rel="apple-touch-icon" sizes="152x152" href="img/touch-icon-152.png">
+
+<!-- default SPLASHSCREEN-->
+<link href="img/apple-touch-startup-image-320x460.png" rel="apple-touch-startup-image">
+<!-- iPhone SPLASHSCREEN
+<link href="img/apple-touch-startup-image-320x460.png" media="(device-width: 320px)" rel="apple-touch-startup-image">-->
+<!-- iPhone (Retina) SPLASHSCREEN
+<link href="img/apple-touch-startup-image-640x920.png" media="(device-width: 320px) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">-->
+<!-- iPad (portrait) SPLASHSCREEN
+<link href="img/apple-touch-startup-image-768x1004.png" media="(device-width: 768px) and (orientation: portrait)" rel="apple-touch-startup-image">-->
+<!-- iPad (landscape) SPLASHSCREEN
+<link href="img/apple-touch-startup-image-748x1024.png" media="(device-width: 768px) and (orientation: landscape)" rel="apple-touch-startup-image">-->
+<!-- iPad (Retina, portrait) SPLASHSCREEN
+<link href="img/apple-touch-startup-image-1536x2008.png" media="(device-width: 1536px) and (orientation: portrait) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">-->
+<!-- iPad (Retina, landscape) SPLASHSCREEN
+<link href="img/apple-touch-startup-image-2048x1496.png" media="(device-width: 1536px)  and (orientation: landscape) and (-webkit-device-pixel-ratio: 2)" rel="apple-touch-startup-image">-->
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, minimal-ui">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+</head>
+<body>
+
+<nav id="mainnav" class="mainnav" role="navigation">
+<div class="menu-container"><ul id="menu-1" class="menu">
+<li id="menu-item-0" class="menu-item menu-item-0">
+	<a                       href="/">Home</a></li>
+<li id="menu-item-1" class="menu-item menu-item-1">
+	<a   href="dashboard/">Dashboard</a></li>
+<li id="menu-item-2" class="menu-item menu-item-2">
+	<a  href="photolinks/">Photolinks</a></li>
+<li id="menu-item-3" class="menu-item current-menu-item menu-item-3">
+	<a       href="watch/">Whatch!</a></li>
+</ul></div></nav><!-- #site-navigation -->
+
+<div class="entry-content">
+<div id="telll-player-frame">
+<div id="telll-player">
+    <div id="telll-top-controls"><input type="hidden" id="status" value="0"></div>
+    <div id="telll-movie">
+<video id="telll-pkt" class="projekktor" poster="img/ocean_13.png" title="Ocean 13" width="1060" height="600" controls>
+    <source src="mov/ocean_13.mp4" type="video/mp4" />
+</video>
+    </div>
+    <!-- panel -->
+    <div id="telll-controls">
+     <div id=panel-frame>
+        <div id="rgb-buttons" class="panel">
+            <div class="rbtn"></div>
+            <div class="gbtn"></div>
+            <div class="bbtn"></div>
+        </div>
+        <div id="return-button"    class="panel"></div>
+        <div id="panel"            class="panel"></div>
+        <div id="forward-button"   class="panel"></div>
+        <div id="settings-button"  class="panel"></div>
+        <div id="telll-button"     class="panel"></div>
+    </div><!-- panel frame -->
+   </div><!-- telll-controls -->
+</div><!-- end telll-player -->
+</div><!-- end telll-player-frame -->
+</div><!-- .entry-content -->
+
+</body>
+</html>

@@ -1,0 +1,125 @@
+
+.tag{
+background:rgba(255,255,255,0.3);
+border: solid 3px yellow;
+position:absolute;
+width:300px;
+height:250px;
+z-index:900000;
+}
+.ui-dialog{
+z-index:900000 !important;
+}
+.ui-widget-overlay{
+z-index:800999 !important;
+}
+#status{}
+#colophon{display:none}
+#telll-player-frame{
+width:100%;
+position:relative;
+z-index:800000;
+}
+#telll-movie{
+width:100%;
+position:relative;
+background: #000;
+}
+#telll-top-controls{
+position: absolute;
+top:0px;
+width:100%;
+height: 30px;
+background-color:rgba(192,192,192,0.3);
+z-index: 800000;
+display:none;
+}
+#telll-controls{
+position: absolute;
+bottom:0px;
+height: 50px;
+width:100%;
+background-color:#000;
+z-index: 800000;
+display:none;
+}
+#panel-frame{
+   width: 960px;
+   height: 50px;
+   margin: 0 auto;
+}
+#panel{
+width:638px;
+height:48px;
+overflow: hidden;
+float: left;
+}
+#return-button {
+    background: url("img/telll.png") no-repeat -276px -66px transparent;
+    width:31px;
+    height:38px;
+    float:left;
+    cursor:pointer;
+}
+#forward-button {
+    background: url("img/telll.png") no-repeat -310px -66px transparent;
+    width:31px;
+    height:38px;
+    float:left;
+    cursor:pointer;
+}
+
+
+#rgb-buttons .rbtn {
+    background: url("img/telll.png") no-repeat -179px -66px transparent;
+    width:31px;
+    height:38px;
+float:left;
+cursor:pointer;
+margin-left: 20px;
+}
+#rgb-buttons .gbtn {
+    background: url("img/telll.png") no-repeat -210px -66px transparent;
+    width:31px;
+    height:38px;
+float:left;
+cursor:pointer;
+}
+#rgb-buttons .bbtn {
+    background: url("img/telll.png") no-repeat -242px -66px transparent;
+    width:31px;
+    height:38px;
+float:left;
+cursor:pointer;
+}
+
+#telll-button {
+    background: url("img/telll.png") no-repeat -179px 0px transparent;
+    width:50px;
+    height:38px;
+float:left;
+cursor:pointer;
+margin-left: 20px;
+}
+
+#settings-button{
+    background: url("img/telll.png") no-repeat -179px -32px transparent;
+    width:31px;
+    height:38px;
+float:left;
+cursor:pointer;
+margin-left: 20px;
+}
+div.frame-icon {
+   overflow:hide;
+   width:80px;
+   height:48px;
+   float:left;
+   margin-left:10px;
+}
+.photolink-icon{
+border:1px solid #fff;
+}
+.title-post{
+display:none;
+}
