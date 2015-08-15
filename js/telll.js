@@ -179,7 +179,7 @@ TheMovie = {
 
 var myPhotolinks = [{
   id: 0,
-  thumb: "photolinks/photolinks_ocean_13.00_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.00_180x90.jpg",
   links: [{
     id: "0",
     title: "Brad Pitt - IMDB",
@@ -188,7 +188,7 @@ var myPhotolinks = [{
   }, ]
 }, {
   id: 1,
-  thumb: "photolinks/photolinks_ocean_13.01_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.01_180x90.jpg",
   links: [{
     id: "1",
     title: "Ted Baker suit - Nordstrom",
@@ -197,7 +197,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 2,
-  thumb: "photolinks/photolinks_ocean_13.02_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.02_180x90.jpg",
   links: [{
     id: "2",
     title: "George Clooney -  IMDB",
@@ -206,7 +206,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 3,
-  thumb: "photolinks/photolinks_ocean_13.03_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.03_180x90.jpg",
   links: [{
     id: "3",
     title: "Armani suit - Celebrity Suit Shop",
@@ -215,7 +215,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 4,
-  thumb: "photolinks/photolinks_ocean_13.04_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.04_180x90.jpg",
   links: [{
     id: "4",
     title: "Las Vegas Travel",
@@ -224,7 +224,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 5,
-  thumb: "photolinks/photolinks_ocean_13.05_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.05_180x90.jpg",
   links: [{
     id: "5",
     title: "Bellagio",
@@ -233,7 +233,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 6,
-  thumb: "photolinks/photolinks_ocean_13.06_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.06_180x90.jpg",
   links: [{
     id: "6",
     title: "MGM Grand",
@@ -242,7 +242,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 7,
-  thumb: "photolinks/photolinks_ocean_13.07_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.07_180x90.jpg",
   links: [{
     id: "7",
     title: "Luxor",
@@ -251,7 +251,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 8,
-  thumb: "photolinks/photolinks_ocean_13.08_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.08_180x90.jpg",
   links: [{
     id: "8",
     title: "Ghurka vintage bag ",
@@ -260,7 +260,7 @@ var myPhotolinks = [{
   }]
 }, {
   id: 9,
-  thumb: "photolinks/photolinks_ocean_13.09_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.09_180x90.jpg",
   links: [{
     id: "9",
     title: "John Varvatos bag ",
@@ -269,7 +269,7 @@ var myPhotolinks = [{
   }, ]
 }, {
   id: 10,
-  thumb: "photolinks/photolinks_ocean_13.10_180x90.jpg",
+  thumb: "img/photolinks/photolinks_ocean_13.10_180x90.jpg",
   links: [{
     id: "10",
     title: "Ford Taurus ",

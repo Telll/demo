@@ -55,14 +55,14 @@ overflow: hidden;
 float: left;
 }
 #return-button {
-    background: url("img/telll.png") no-repeat -276px -66px transparent;
+    background: url("../img/telll.png") no-repeat -276px -66px transparent;
     width:31px;
     height:38px;
     float:left;
     cursor:pointer;
 }
 #forward-button {
-    background: url("img/telll.png") no-repeat -310px -66px transparent;
+    background: url("../img/telll.png") no-repeat -310px -66px transparent;
     width:31px;
     height:38px;
     float:left;
@@ -71,7 +71,7 @@ float: left;
 
 
 #rgb-buttons .rbtn {
-    background: url("img/telll.png") no-repeat -179px -66px transparent;
+    background: url("../img/telll.png") no-repeat -179px -66px transparent;
     width:31px;
     height:38px;
 float:left;
@@ -79,14 +79,14 @@ cursor:pointer;
 margin-left: 20px;
 }
 #rgb-buttons .gbtn {
-    background: url("img/telll.png") no-repeat -210px -66px transparent;
+    background: url("../img/telll.png") no-repeat -210px -66px transparent;
     width:31px;
     height:38px;
 float:left;
 cursor:pointer;
 }
 #rgb-buttons .bbtn {
-    background: url("img/telll.png") no-repeat -242px -66px transparent;
+    background: url("../img/telll.png") no-repeat -242px -66px transparent;
     width:31px;
     height:38px;
 float:left;
@@ -94,7 +94,7 @@ cursor:pointer;
 }
 
 #telll-button {
-    background: url("img/telll.png") no-repeat -179px 0px transparent;
+    background: url("../img/telll.png") no-repeat -179px 0px transparent;
     width:50px;
     height:38px;
 float:left;
@@ -103,7 +103,7 @@ margin-left: 20px;
 }
 
 #settings-button{
-    background: url("img/telll.png") no-repeat -179px -32px transparent;
+    background: url("../img/telll.png") no-repeat -179px -32px transparent;
     width:31px;
     height:38px;
 float:left;
@@ -119,6 +119,7 @@ div.frame-icon {
 }
 .photolink-icon{
 border:1px solid #fff;
+max-width: 100%;
 }
 .title-post{
 display:none;
