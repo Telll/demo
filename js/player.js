@@ -14,10 +14,13 @@ jQuery( document ).ready(function( $ ) {
 
     // mantain the full window viewport
     _fullWindow();
+    flashBalls();
     $( window ).resize(function() {
         _fullWindow();
     });
 
+    /** Create top control
+    */
     // inject navbar on control top
     $('#telll-top-controls').append($('#mainnav'));
     $('#mainnav').css('margin-top','3px');
@@ -36,30 +39,38 @@ jQuery( document ).ready(function( $ ) {
              setTimeout(function(){topOpen = 0;},600);
          }
     });
+
+    /** Create panel controls
+     */
     panelOpen = 0;
     $( document ).on( "mousemove", function( event ) {
          if (event.pageY > (theHeight - 40) && panelOpen == 0){
              $('#telll-controls').slideDown();
-             $('#telll-pkt').animate({height:"-=50"},600);
+             //$('#telll-pkt').animate({height:"-=50"},600);
              panelOpen = 1;
          }
     });
     $( document ).on( "mousemove", function( event ) {
          if (event.pageY < (theHeight - 110) && panelOpen == 1){
              $('#telll-controls').slideUp();
-             $('#telll-pkt').animate({height:"+=50"},600);
+             //$('#telll-pkt').animate({height:"+=50"},600);
              panelOpen = 0;
          }
     });
 
     createPhotolinksPanel();
 
+    //$('#settings-button').attr('href','#settingspanel'); 
     // Panel buttons
     $('#rgb-buttons .rbtn').on('click',function(e){ });
     $('#rgb-buttons .gbtn').on('click',function(e){ });
     $('#rgb-buttons .bbtn').on('click',function(e){ });
-    $('#telll-button'     ).on('click',function(e){ });
-    $('#settings-button'  ).on('click',function(e){ });
+    $('#telll-button'     ).on('click',function(e){
+        $( "#telllspanel" ).panel( "open");
+    });
+    $('#settings-button'  ).on('click',function(e){
+        $( "#settingspanel" ).panel( "open");
+    });
 
     var panelSliding = 0;
     $('#return-button'  ).on('click',function(e){
@@ -152,6 +163,19 @@ jQuery( document ).ready(function( $ ) {
     }
 
 
+    /** flashBalls
+    * Balls flashing with logo
+    */
+    function flashBalls() {
+        console.log('Flashing!!!');
+        $("#telll-warn").fadeIn(function(){
+        //$("#telll-warn").css({'background-image': url('../img/flash_balls.gif')});
+        setTimeout(function(){
+        $("#telll-warn").fadeOut();
+        },1500);
+        });
+    }
+
 
     /** Full window
     * Adjust viewport to full window
@@ -220,7 +244,7 @@ jQuery( document ).ready(function( $ ) {
          handle = setTimeout (function(t){
               // Create the tag if it doesn't exist
               if( !$('#pl-'+plId).length ){
-                $("body").append('<div id="pl-'+plId+'" class="tag"><div class="tag-label"><a target="_blank" href="'+myPl.links[0].url+'">'+myPl.links[0].title+'</a></div></div>');
+                $("body").append('<div id="pl-'+plId+'" class="tag"><div class="clkbl"><div class="tag-label"><a target="_blank" href="'+myPl.links[0].url+'">'+myPl.links[0].title+'</a></div></div></div>');
                 $('#pl-'+plId).css({'left':x1,'top':y1});
                 $('#pl-'+plId).css({'width':'20%','height':'18%'});
                 $('#pl-'+plId).fadeIn();
