@@ -1,4 +1,10 @@
-
+/* player.js
+ * implements a player using projekktor
+ * Author: Monsenhor <monsenhor@cpan.org>
+ * Date: 2015 Aug
+ * Version: 0.14
+ */
+var VERSION = '0.14';
 jQuery.noConflict();
 
 var theHeight;
@@ -14,18 +20,21 @@ jQuery( document ).ready(function( $ ) {
 
     // mantain the full window viewport
     _fullWindow();
-    flashBalls();
+    // flashBalls();
     $( window ).resize(function() {
         _fullWindow();
     });
 
     /** Create top control
+     * TODO: make a class
     */
     // inject navbar on control top
     $('#telll-top-controls').append($('#mainnav'));
     $('#mainnav').css('margin-top','3px');
 
-    // on mouseup show controls
+    /** Create top controls
+     * TODO: make a class
+     */
     topOpen = 0;
     $( document ).on( "mousemove", function( event ) {
          if (event.pageY < 20 && topOpen == 0){
@@ -41,6 +50,7 @@ jQuery( document ).ready(function( $ ) {
     });
 
     /** Create panel controls
+     * TODO: make a class
      */
     panelOpen = 0;
     $( document ).on( "mousemove", function( event ) {
@@ -58,13 +68,20 @@ jQuery( document ).ready(function( $ ) {
          }
     });
 
-    createPhotolinksPanel();
+    createPhotolinksPanel(); // TODO it must be myPhpnl = new PhPanel();
 
-    //$('#settings-button').attr('href','#settingspanel'); 
     // Panel buttons
-    $('#rgb-buttons .rbtn').on('click',function(e){ });
-    $('#rgb-buttons .gbtn').on('click',function(e){ });
-    $('#rgb-buttons .bbtn').on('click',function(e){ });
+    $('#rgb-buttons .rbtn').on('click',function(e){
+        tagDefaultView();
+    });
+    $('#rgb-buttons .gbtn').on('click',function(e){
+        tagDefaultView();
+        $('.tag').addClass('tag-flash');
+    });
+    $('#rgb-buttons .bbtn').on('click',function(e){
+        tagDefaultView();
+        $('.tag').addClass('tag-yellow');
+    });
     $('#telll-button'     ).on('click',function(e){
         $( "#telllspanel" ).panel( "open");
     });
@@ -85,19 +102,17 @@ jQuery( document ).ready(function( $ ) {
              scrollPhotolinksPanel(1);
          }
     });
-
-
     // mouse out : labels
-    $(".photolink-icon").on("mouseover",function(e){
+    $(".frame-icon *").on("mouseover",function(e){
          var thisid=$( this ).attr('id');
          //console.log(thisid);
          $('label[for='+thisid+']' ).css("display","inline");
     });
-    $(".photolink-icon").on("mouseleave",function(e){
+    $(".frame-icon *").on("mouseleave",function(e){
          $('label').css("display","none");
     });
 
-    $("#panel img").click(function() {
+    $(".frame-icon *").click(function() {
         sendPhotolink($(this).attr('id_photolink'));
     });
 
@@ -116,9 +131,17 @@ jQuery( document ).ready(function( $ ) {
         // player listeners
         player.addListener('time', timeListener);
         player.addListener('state', stateListener);
+        player.addListener('mouseenter', mouseEnterListener);
+        player.addListener('mouseleave', mouseLeaveListener);
         thePlayer = player;
     });
-
+    // Video behaviors
+    var mouseEnterListener = function(){
+          tagDefaultView(); 
+    }
+    var mouseLeaveListener = function(){
+          tagNoneView(); 
+    }
     // state listener callback
     var stateListener = function(state) {
     switch(state) {
@@ -154,25 +177,51 @@ jQuery( document ).ready(function( $ ) {
             if ( value >= p1 && value <= p2 ) { // It's playing now!
                 if (trackms[i].stopped){
                     trackms[i].stopped = 0;
-                    playTrackm(i);
-                }
+//console.log('Photolink n: ');
+//console.log(trackms[i].photolink);
+//console.log('Actual ph: ');
+//console.log(actualPhotolink);
+                    // scroll photolink panel to here
+                    scrollPhotolinksPanel(trackms[i].photolink - actualPhotolink);
+                    playTrackm(i); // animate tag
+                    flashBalls();  // at top left
+               }
             } else {
                     trackms[i].stopped = 1;
             }
         }
     }
 
+    /** tagViews functions
+     */
+    function tagDefaultView(){
+        $('.tag').removeClass('tag-none');
+        $('.tag').removeClass('tag-flash');
+        $('.tag').removeClass('tag-yellow');
+        $('.tag').addClass('tag-default');
+        $('.tag *').on('mouseover',function(){tagDefaultView()});
+    }
+    function tagNoneView(){
+        $('.tag').removeClass('tag-default');
+        $('.tag').removeClass('tag-flash');
+        $('.tag').removeClass('tag-yellow');
+        $('.tag').addClass('tag-none');
+    }
 
     /** flashBalls
     * Balls flashing with logo
     */
     function flashBalls() {
         console.log('Flashing!!!');
-        $("#telll-warn").fadeIn(function(){
-        //$("#telll-warn").css({'background-image': url('../img/flash_balls.gif')});
-        setTimeout(function(){
-        $("#telll-warn").fadeOut();
-        },1500);
+        $("#telll-warn").css({"background-image": "url('../img/logo_01.png')"});
+        $("#telll-warn").fadeIn(800, function(){
+            $("#telll-warn").css({
+               "background-image": "url('../img/flash_balls.gif')",
+               "background-repeat": "no-repeat"
+            });
+            setTimeout(function(){
+                $("#telll-warn").fadeOut();
+            },1800);
         });
     }
 
@@ -244,7 +293,7 @@ jQuery( document ).ready(function( $ ) {
          handle = setTimeout (function(t){
               // Create the tag if it doesn't exist
               if( !$('#pl-'+plId).length ){
-                $("body").append('<div id="pl-'+plId+'" class="tag"><div class="clkbl"><div class="tag-label"><a target="_blank" href="'+myPl.links[0].url+'">'+myPl.links[0].title+'</a></div></div></div>');
+                $("body").append('<div id="pl-'+plId+'" class="tag tag-none"><div class="clkbl"><div class="tag-label"><a target="_blank" href="'+myPl.links[0].url+'">'+myPl.links[0].title+'</a></div></div></div>');
                 $('#pl-'+plId).css({'left':x1,'top':y1});
                 $('#pl-'+plId).css({'width':'20%','height':'18%'});
                 $('#pl-'+plId).fadeIn();
@@ -265,10 +314,11 @@ jQuery( document ).ready(function( $ ) {
 
                     // show dialog
  	            //$('body').append('<div id="ph-dialog-'+plId+'"><iframe src="'+myPl.links[0].url+'"</div>');
-		    $('body').append('<div id="ph-dialog-'+plId+'"><iframe width="100%" height="100%" src="/"</div>');
+		    $('body').append('<div id="ph-dialog-'+plId+'"><iframe width="100%" height="100%" src="/cgi-bin/mirror.pl?url='+myPl.links[0].url+'"></div>');
 		    $( "#ph-dialog-"+plId ).dialog({
 		       modal: true,
                        width: '80%',
+                       height: theHeight - 5,
                        title: myPl.links[0].title,
 		       buttons: {
 			 Ok: function() {
@@ -313,6 +363,20 @@ jQuery( document ).ready(function( $ ) {
     */
     function sendPhotolink (photolinkId){
         console.log("Sending photolink ...");
+       
+
+        var xhr = new XMLHttpRequest();
+        var headers =  {"X-Api-Key": 123, "X-Auth-Key": "4574eb62ff5337ce17f3d657f3b74cbcf3f9cc42"}; 
+        xhr.open('POST', 'http://52.3.72.192:3000/app/photolink/send/0/'+photolinkId, true);
+        for(var key in headers) {
+                xhr.setRequestHeader(key, headers[key]);
+        }
+
+        xhr.send('{"extradata": "blablabla"}');
+
+
+
+ 
         //$.post( "ajax/test.html", function( data ) {
              console.log("Sent!");
         //});
@@ -321,6 +385,7 @@ jQuery( document ).ready(function( $ ) {
 
     /**
      * createPhotolinksPanel
+     * TODO: make a class
     **/
     function createPhotolinksPanel(){
 	    //console.log("Creating panel ...");
@@ -374,7 +439,13 @@ jQuery( document ).ready(function( $ ) {
 	               pls.eq(0).css('margin-left',ml);
                        //panelSliding = 0;
                 });
-	    }
+	    } else if (Math.abs(n) > 1) {
+                for (i=0; i<Math.abs(n) ; i++){
+                    setTimeout(function(){
+                        scrollPhotolinksPanel(n/Math.abs(n));
+                    },(i+1)*451);
+                }
+            }
             // done
            // restore photolinks
            setTimeout(function(){

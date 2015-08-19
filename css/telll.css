@@ -17,9 +17,18 @@ width:300px;
 height:250px;
 z-index:900000;
 }
+.tag-default{
+opacity:0.5;
+}
+.tag-none{
+opacity:0;
+}
 .tag-yellow{
 background:rgba(255,255,255,0.3);
 border: solid 3px yellow;
+}
+.tag-flash{
+background-image: url('../img/logo_01.png');
 }
 .tag .clkbl{
 width:100%;
@@ -28,11 +37,13 @@ cursor:pointer;
 }
 .tag .tag-label{
 margin:auto;
-height: 30px;
-width:150px;
-margin-top: 15%;
+min-height: 30px;
+min-width:150px;
+/*margin-top: 15%;*/
 background: rgba(255,255,255,0.7);
 padding: 8px;
+display: table-cell;
+vertical-align: middle;
 }
 .tag .tag-label a:link{
 text-decoration:none;
@@ -58,6 +69,7 @@ width:80px;
 height:50px;
 z-index: 800000;
 background-size: 80px;
+display:none;
 }
 #status{}
 #colophon{display:none}
@@ -162,6 +174,11 @@ div.frame-icon {
    height:48px;
    float:left;
    margin-left:10px;
+   cursor:pointer;
+}
+div.frame-icon label {
+position:absolute;
+display:none;
 }
 .photolink-icon{
 border:1px solid #fff;
