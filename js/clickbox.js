@@ -10,13 +10,16 @@ jQuery( document ).ready(function( $ ) {
     //Intsntiate a photolinks
     //photolink = new Photolink($('#telll-photolink'));
     photolink = createPhotolink($('#telll-photolink'));
-    console.log(photolink);
 
     // inject navbar on control top
     $('#telll-top-controls').append($('#mainnav'));
     $('#mainnav').attr('id', 'telll-nav');
     //$('#telll-top-controls').append($('#mainnav-mobi'));
-
+    // top links
+    $('#menu-item-0').on('click', function(e){window.location.href='/';e.preventDefault();});
+    //$('#menu-item-1').on('click', function(e){window.location.href='/dashboard';e.preventDefault();});
+    $('#menu-item-2').on('click', function(e){window.location.href='/clickbox.html';e.preventDefault();});
+    $('#menu-item-3').on('click', function(e){window.location.href='/player.html';e.preventDefault();});
     // screen behaviors:
     // on mouseup show controls
     topOpen = 0;
@@ -65,19 +68,32 @@ jQuery( document ).ready(function( $ ) {
      */
     function createPhotolink (j){
         var phData;
-	var lp = new LongPolling("GET", "http://52.3.72.192:3000/app/photolink/lp", "\n//----------//", {"X-Api-Key": 1234, "X-Auth-Key": "4574eb62ff5337ce17f3d657f3b74cbcf3f9cc42"});
-        //console.log('Creating photolink ...');
+	var lp = new LongPolling("GET", "http://52.3.72.192:3000/app/photolink/lp", "\n//----------//", {"X-Api-Key": 123, "X-Auth-Key": "395fb7b657db2fb5656f34de3840e73c90b79c31"});
+        console.log('Creating photolink ...');
         //console.log(j);
         //console.log(lp);
-        //lp.begin();
+        lp.create();
 	lp.onData = function(data) {
             phData = data;
-	    //j.replaceWith('<div id="telll-photolink"><img id="photolink-image" src="'+phData.image+'"></div>');
-	    $('#photolink-image').on('click', function(){alert('Clicked!');});
+            jsData = JSON.parse(phData);
+	    console.log('got!');
+	    //console.log(jsData);
+            //console.log(myPhotolinks);
+            plId = jsData.id;
+            myPl = {};
+            for(i=0; i<myPhotolinks.length;i++){
+                //console.log(plId);
+                //console.log(myPhotolinks[i].id);
+                if(myPhotolinks[i].id == plId) myPl = myPhotolinks[i];
+            }
+            console.log(myPl.thumb.replace('_180x90',''));
+	    //j.replaceWith('<div id="telll-photolink"><img id="photolink-image" src="'+jsData.media.image+'"></div>');
+	    j.on('click', function(){window.location.href=myPl.links[0].url;});
+	    j.css('background-image','url('+myPl.thumb.replace('_180x90','')+')');
 	};
 
-	    $('#photolink-image').on('click', function(){alert('Clicked! Implement me, please!');});
-        //lp.connect();
+	    //$('#photolink-image').on('click', function(){console.log('Clicked! Implement me, please!');});
+        lp.connect();
         return phData;
 
         //tws = new Tws;

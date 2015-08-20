@@ -17,6 +17,7 @@ background-image: url('../img/photolinks/photolinks_ocean_13.10.jpg');
 background-repeat: no-repeat;
 background-position: center;
 }
+/*
 #telll-top-controls{
 position: absolute;
 top:0px;
@@ -26,9 +27,11 @@ background-color:rgba(254,254,254,0.7);
 z-index: 800000;
 display:none;
 }
+*/
 .ttc-element {
-width:40px;
-margin:10px
+width:26px;
+margin-left: 5px;
+margin-top: 2px;
 }
 .social-nw {
 float: left;
@@ -57,6 +60,7 @@ display:none;
 }
 #telll-nav {
 }
+/*
 #telll-nav li {
 float: right;
 font-size: 14px;
@@ -70,6 +74,7 @@ margin-right: 10px;
 text-shadow: rgb(243, 243, 243) 0px 1px 0px;
 list-style-type: none;
 }
+
 #telll-nav li a{
 color:#fff;
-}
+}*/

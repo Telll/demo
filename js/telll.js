@@ -406,7 +406,7 @@ trackms = [{
     points: [{
       x: 20,
       y: 50,
-      t: 54.55
+      t: 54
     }, {
       x: 20,
       y: 50,
@@ -430,11 +430,11 @@ trackms = [{
     points: [{
       x: 45,
       y: 50,
-      t: 54.55
+      t: 55
     }, {
       x: 45,
       y: 50,
-      t: 57.38
+      t: 57.48
     }],
     stopped: 1,
     photolink: 6,
@@ -442,7 +442,7 @@ trackms = [{
     points: [{
       x: 70,
       y: 50,
-      t: 54.55
+      t: 56
     }, {
       x: 70,
       y: 50,
@@ -450,7 +450,7 @@ trackms = [{
     }, {
       x: 70,
       y: 50,
-      t: 57.38
+      t: 57.58
     }],
     stopped: 1,
     photolink: 7,

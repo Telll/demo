@@ -48,7 +48,11 @@ jQuery( document ).ready(function( $ ) {
              setTimeout(function(){topOpen = 0;},600);
          }
     });
-
+    $('#menu-item-0').on('click', function(e){window.location.href='/';e.preventDefault();});
+//    $('#menu-item-1').on('click', function(e){window.location.href='/dashboard';e.preventDefault();});
+    $('#menu-item-2').on('click', function(e){window.location.href='/clickbox.html';e.preventDefault();});
+    $('#menu-item-3').on('click', function(e){window.location.href='/player.html';e.preventDefault();});
+ 
     /** Create panel controls
      * TODO: make a class
      */
@@ -213,7 +217,7 @@ jQuery( document ).ready(function( $ ) {
     */
     function flashBalls() {
         console.log('Flashing!!!');
-        $("#telll-warn").css({"background-image": "url('../img/logo_01.png')"});
+        $("#telll-warn").css({"background-image": "url('../img/flash_balls.gif')"});
         $("#telll-warn").fadeIn(800, function(){
             $("#telll-warn").css({
                "background-image": "url('../img/flash_balls.gif')",
@@ -362,25 +366,18 @@ jQuery( document ).ready(function( $ ) {
      * @param id
     */
     function sendPhotolink (photolinkId){
-        console.log("Sending photolink ...");
+        console.log("Sending photolink ... "+photolinkId);
        
 
         var xhr = new XMLHttpRequest();
-        var headers =  {"X-Api-Key": 123, "X-Auth-Key": "4574eb62ff5337ce17f3d657f3b74cbcf3f9cc42"}; 
+        var headers =  {"X-Api-Key": 123, "X-Auth-Key": "395fb7b657db2fb5656f34de3840e73c90b79c31"}; 
         xhr.open('POST', 'http://52.3.72.192:3000/app/photolink/send/0/'+photolinkId, true);
         for(var key in headers) {
                 xhr.setRequestHeader(key, headers[key]);
         }
 
-        xhr.send('{"extradata": "blablabla"}');
-
-
-
- 
-        //$.post( "ajax/test.html", function( data ) {
-             console.log("Sent!");
-        //});
-        //player.api('seekTo', my_frame);
+        xhr.send('{"movie": "0"}');
+        console.log("Sent!");
    }
 
     /**
