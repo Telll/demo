@@ -56,6 +56,16 @@ jQuery( document ).ready(function( $ ) {
          //$('#telll-bottom-controls').slideToggle();
     });
 
+    $('#photolink-image a').attr('href', myPhotolinks[0].links[0].url);
+    $('#photolink-image').on('click', function(){
+//        console.log('Opening '+ myPhotolinks[0].links[0].url);
+//        $(this).attr('href', myPhotolinks[0].links[0].url);
+        //window.location.href=myPl.links[0].url;
+//        window.open(  myPhotolinks[0].links[0].url, 
+//        "popupWindow", 
+//        "width=600,height=600,scrollbars=yes");
+//        return false;
+    });
 
 
 
@@ -88,8 +98,17 @@ jQuery( document ).ready(function( $ ) {
             }
             console.log(myPl.thumb.replace('_180x90',''));
 	    //j.replaceWith('<div id="telll-photolink"><img id="photolink-image" src="'+jsData.media.image+'"></div>');
-	    j.on('click', function(){window.location.href=myPl.links[0].url;});
-	    j.css('background-image','url('+myPl.thumb.replace('_180x90','')+')');
+	    //$('#photolink-image').on('click', function(){
+            //    console.log('Opening '+ myPl.links[0].url);
+                //window.location.href=myPl.links[0].url;
+            //    window.open( myPl.links[0].url, 
+            //    "popupWindow", 
+            //    "width=600,height=600,scrollbars=yes");
+            //    return false;
+           // });
+            $('#photolink-image a').attr('href', myPl.links[0].url);
+	    $('#photolink-image').css('background-image','url('+myPl.thumb.replace('_180x90','')+')');
+            console.log(j);
 	};
 
 	    //$('#photolink-image').on('click', function(){console.log('Clicked! Implement me, please!');});

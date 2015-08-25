@@ -24,7 +24,9 @@ jQuery( document ).ready(function( $ ) {
     $( window ).resize(function() {
         _fullWindow();
     });
-
+    $(window).on('orientationchange', function(event) {
+        _fullWindow();
+    });
     /** Create top control
      * TODO: make a class
     */
@@ -37,7 +39,13 @@ jQuery( document ).ready(function( $ ) {
      */
     topOpen = 0;
     $( document ).on( "mousemove", function( event ) {
-         if (event.pageY < 20 && topOpen == 0){
+         if (event.pageY < 40 && topOpen == 0){
+             $('#telll-top-controls').slideDown();
+             setTimeout(function(){topOpen = 1;},600);
+         }
+    });
+    $( document ).on( "touchstart", function( event ) {
+         if (event.pageY < 40 && topOpen == 0){
              $('#telll-top-controls').slideDown();
              setTimeout(function(){topOpen = 1;},600);
          }
@@ -115,6 +123,16 @@ jQuery( document ).ready(function( $ ) {
     $(".frame-icon *").on("mouseleave",function(e){
          $('label').css("display","none");
     });
+    // touch : labels
+    $(".frame-icon *").on("touchstart",function(e){
+         var thisid=$( this ).attr('id');
+         //console.log(thisid);
+         $('label[for='+thisid+']' ).css("display","inline");
+    });
+    $(".frame-icon *").on("touchend",function(e){
+         $('label').css("display","none");
+    });
+
 
     $(".frame-icon *").click(function() {
         sendPhotolink($(this).attr('id_photolink'));
@@ -136,7 +154,9 @@ jQuery( document ).ready(function( $ ) {
         player.addListener('time', timeListener);
         player.addListener('state', stateListener);
         player.addListener('mouseenter', mouseEnterListener);
+        player.addListener('touchstart', mouseEnterListener);
         player.addListener('mouseleave', mouseLeaveListener);
+        player.addListener('touchend', mouseLeaveListener);
         thePlayer = player;
     });
     // Video behaviors
