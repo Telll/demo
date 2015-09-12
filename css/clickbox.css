@@ -10,12 +10,21 @@ height:800px;
 position:relative;
 background: #000;
 }
+#photolink-list {
+  width: 100%;
+  height: 100%;
+/*  display: none; */
+}
+.photolink-list-element {
+  width: 100%;
+}
 #photolink-image {
 height:100%;
 margin: auto;
 background-image: url('../img/photolinks/photolinks_ocean_13.10.jpg');
 background-repeat: no-repeat;
 background-position: center;
+display:none;
 }
 #photolink-image img {
 width:100%;

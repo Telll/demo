@@ -1,13 +1,13 @@
 /*******
 telll classes
 author: Monsenhor <filipo@kobkob.org>
-Version: 0.14 2015 August
+Version: 0.15 2015 August
 
 License: GPL Affero
 
 **/
 
-var Version = "0.14";
+var Version = "0.15";
 
 /**
  * class Tws
@@ -167,6 +167,170 @@ LongPolling.prototype = {
     this.xhr = this._createXHR();
   }
 };
+
+
+/**
+  * class tws
+  * 
+  */
+
+tws = function (server)
+{
+  this._init (server);
+}
+
+
+/**
+ * Init
+ */
+tws.prototype._init = function (server)
+{
+
+this.m_server = server;
+this.method;
+this.url;
+this.delimiter;
+this.headers;
+this.xhr;
+
+}
+/**
+ * setHeaders
+ */
+tws.prototype.setHeaders = function (h)
+{
+this.headers = h;
+}
+
+
+/**
+ * user 
+ * 
+ */
+tws.prototype.user = function (data)
+{
+    console.log('Creating new user on tws');
+    console.log(data);
+    if (data.username && data.email && data.password){
+        // call tws to create a new user
+
+        var send = JSON.stringify(data);
+        console.log(send);
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener('load', function(){
+            console.log('Response');
+            console.log(this.responseText);
+        });
+        xhr.open('POST', 'http://52.3.72.192:3000/app/user', true);
+        for(var key in this.headers) {
+                xhr.setRequestHeader(key, this.headers[key]);
+        }
+        xhr.send(send);
+        return xhr;
+
+
+    } else {
+        console.log ("{error:'wrong user data'}");
+        return "{error:'wrong user data'}";
+    }
+}
+
+
+/**
+ * login 
+ * 
+ */
+tws.prototype.login = function (data)
+{
+var url = this.m_server+'/login';
+var ptype = "POST";
+this.headers = {"X-API-Key": 123}; 
+var msg = "Login on tws ...";
+    data.user_name = data.username;
+    console.log(msg);
+    console.log(data);
+    if (data.username && data.password){
+        // call tws to login
+        var send = JSON.stringify(data);
+        console.log(send);
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener('load', function(){
+            console.log('Response');
+            console.log(this.responseText);
+            loginData = JSON.parse(this.responseText);
+            this.headers = {"X-API-Key": 123, "X-Auth-Key": loginData.auth_key}; 
+        });
+        xhr.open(ptype , url, true);
+        for(var key in this.headers) {
+                xhr.setRequestHeader(key, this.headers[key]);
+        }
+        xhr.send(send);
+        return xhr;
+    } else {
+        console.log ("{error:'wrong user data'}");
+        return "{error:'wrong user data'}";
+    }
+}
+
+/**
+ * 
+ * 
+ */
+tws.prototype.getPhotolink = function ()
+{
+	this.url = this.m_server+'/app/photolink/lp';
+        var lp = new LongPolling("GET", "http://52.3.72.192:3000/app/photolink/lp", "\n//----------//", this.headers);
+        //var lp = new LongPolling("GET", "http://52.3.72.192:3000/app/photolink/lp", "\n//----------//", {"X-Api-Key": 1234, "X-Auth-Key": "4574eb62ff5337ce17f3d657f3b74cbcf3f9cc42"});
+        lp.create();
+	return lp;
+}
+
+/**
+ * 
+ * 
+ */
+tws.prototype.sendPhotolink = function (str)
+{
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://52.3.72.192:3000/app/photolink/send/0/0', true);
+        for(var key in this.headers) {
+                xhr.setRequestHeader(key, this.headers[key]);
+        }
+
+        xhr.send(str);
+}
+
+//////////////////////////////////////////////////////
+// utilitie functions
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+}
+function checkCookie() {
+    // TODO: do a real check ... :P
+    var user = getCookie("email");
+    if (user != "") {
+        alert("Welcome again " + user);
+    } else {
+        user = prompt("Welcome! Please enter your email:", "");
+        if (user != "" && user != null) {
+            document.getElementById('email').value = user;
+            //alert("Please enter your password and click on login button.");
+        }
+    }
+}
 
 //////////////////////////////////////////////////////
 // DATA

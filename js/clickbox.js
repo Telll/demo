@@ -1,6 +1,13 @@
-jQuery.noConflict();
+/* clickbox.js
+ * require telll.js Version 0.15
+ */
 var theHeight;
+var authKey;
+var deviceModel='iPad';
+var devicePhotolinks=[];
+var user;
 
+jQuery.noConflict();
 jQuery( document ).ready(function( $ ) {
 
     $( window ).resize(function() {
@@ -9,7 +16,7 @@ jQuery( document ).ready(function( $ ) {
 
     //Intsntiate a photolinks
     //photolink = new Photolink($('#telll-photolink'));
-    photolink = createPhotolink($('#telll-photolink'));
+    //photolink = createPhotolink($('#telll-photolink'));
 
     // inject navbar on control top
     $('#telll-top-controls').append($('#mainnav'));
@@ -31,8 +38,8 @@ jQuery( document ).ready(function( $ ) {
     });
     $('#telll-top-controls').on("mouseleave" , function(event){
          if (topOpen == 1){
-             $('#telll-top-controls').slideUp();
-             setTimeout(function(){topOpen = 0;},600);
+             setTimeout(function(){$('#telll-top-controls').slideUp()},5000);
+             setTimeout(function(){topOpen = 0;},5600);
          }
     });
 
@@ -45,8 +52,9 @@ jQuery( document ).ready(function( $ ) {
     });
     $('#telll-bottom-controls').on("mouseleave" , function(event){
          if (botOpen == 1){
-             $('#telll-bottom-controls').slideUp();
-             setTimeout(function(){botOpen = 0;},600);
+             
+             setTimeout(function(){$('#telll-bottom-controls').slideUp();},5000);
+             setTimeout(function(){botOpen = 0;},5600);
          }
     });
 
@@ -77,49 +85,51 @@ jQuery( document ).ready(function( $ ) {
      * @param j : the photolink dom obj
      */
     function createPhotolink (j){
-        var phData;
-	var lp = new LongPolling("GET", "http://52.3.72.192:3000/app/photolink/lp", "\n//----------//", {"X-Api-Key": 123, "X-Auth-Key": "395fb7b657db2fb5656f34de3840e73c90b79c31"});
-        console.log('Creating photolink ...');
-        //console.log(j);
-        //console.log(lp);
-        lp.create();
-	lp.onData = function(data) {
-            phData = data;
-            jsData = JSON.parse(phData);
-	    console.log('got!');
-	    //console.log(jsData);
-            //console.log(myPhotolinks);
-            plId = jsData.id;
-            myPl = {};
-            for(i=0; i<myPhotolinks.length;i++){
-                //console.log(plId);
-                //console.log(myPhotolinks[i].id);
-                if(myPhotolinks[i].id == plId) myPl = myPhotolinks[i];
-            }
-            console.log(myPl.thumb.replace('_180x90',''));
-	    //j.replaceWith('<div id="telll-photolink"><img id="photolink-image" src="'+jsData.media.image+'"></div>');
-	    //$('#photolink-image').on('click', function(){
-            //    console.log('Opening '+ myPl.links[0].url);
-                //window.location.href=myPl.links[0].url;
-            //    window.open( myPl.links[0].url, 
-            //    "popupWindow", 
-            //    "width=600,height=600,scrollbars=yes");
-            //    return false;
-           // });
-            $('#photolink-image a').attr('href', myPl.links[0].url);
-	    $('#photolink-image').css('background-image','url('+myPl.thumb.replace('_180x90','')+')');
-            console.log(j);
-	};
+        var saas = new tws('http://52.3.72.192:3000');
+        var data = {
+            'username': "mock_01",
+            'password': "blablabla",
+            'model':'iPad'
+        };
+        //user = new User(data);
+        var xhr = saas.login(data);
+        xhr.addEventListener('load', function(){
+            console.log(this.responseText);
+            var jsData = JSON.parse(this.responseText);
+            if (jsData.error) alert(jsData.error);
+            authKey = jsData.auth_key;
+            saas.setHeaders({"X-API-Key": 123, "X-Auth-Key": authKey});
+	var phData = "{'error':'unknown'}";
+	    lp = saas.getPhotolink();
+	    lp.onData = function(data) {
+	        phData = data;
+	        jsData = JSON.parse(phData);
+	        console.log('got!');
+	        console.log(jsData);
+                console.log(myPhotolinks);
+                plId = jsData.id;
+                myPl = {};
+                for(i=0; i<myPhotolinks.length;i++){
+                    console.log(plId);
+                    console.log(myPhotolinks[i].id);
+                    if(myPhotolinks[i].id == plId) myPl = myPhotolinks[i];
+                }
+                console.log(myPl.thumb.replace('_180x90',''));
+                $('#photolink-image a').attr('href', myPl.links[0].url);
+	        $('#photolink-image').css('background-image','url('+myPl.thumb.replace('_180x90','')+')');
+                console.log(j);
+                $('#photolink-image').fadeIn();
+                $('#photolink-list').fadeOut();
+                updatePhotolinksList(myPl);
+                // return to list view in 15 seconds
+                setTimeout(function(){
+                    $('#photolink-image').fadeOut();
+                    $('#photolink-list').fadeIn();
+                },15000);
+	    };
+	lp.connect();
 
-	    //$('#photolink-image').on('click', function(){console.log('Clicked! Implement me, please!');});
-        lp.connect();
-        return phData;
-
-        //tws = new Tws;
-        //pl = tws.getPhotolink(function(){
-        //    j.replaceWith('<div id="telll-photolink"><img id="photolink-image" src="'+pl.image+'"></div>');
-        //$('#photolink-image').on('click', function(){});
-        //});
+        });
     }
 
     /** Full window
@@ -135,5 +145,21 @@ jQuery( document ).ready(function( $ ) {
         $( "#telll-clickbox-frame" ).css('top','0');
         $( "#telll-clickbox-frame" ).css('left','0');
         theHeight = $(window).height();
+    }
+
+    /** updatePhotolinksList
+     *
+     */
+    function updatePhotolinksList(myPl) {
+        var myList;
+        devicePhotolinks.push(myPl);
+        for(i=0; i<devicePhotolinks.length;i++){
+            myPl = myPhotolinks[i];
+            console.log("Photolink "+i );
+            console.log(myPl);
+            myList = '<div class="photolink-list-element"><img src="'+myPl.thumb+'"><span class="ple-title">'+myPl.title+'</span><span class="ple-desc">'+myPl.description+'</span></div>';
+        }
+        $('#photolink-list *').detach();
+        $('#photolink-list').html(myList);
     }
  });

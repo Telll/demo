@@ -2,21 +2,36 @@
  * implements a player using projekktor
  * Author: Monsenhor <monsenhor@cpan.org>
  * Date: 2015 Aug
- * Version: 0.14
+ * Needs telll.js Version: 0.14
  */
-var VERSION = '0.14';
-jQuery.noConflict();
 
 var theHeight;
 var moviePosition;
+var authKey;
+var deviceModel;
+var user;
 
+// Create event to listen when jquery change a class
+(function(){
+    var originalAddClassMethod = jQuery.fn.addClass;
+    jQuery.fn.addClass = function(){
+        var result = originalAddClassMethod.apply( this, arguments );
+        // trigger a custom event
+        jQuery(this).trigger('cssClassChanged');
+        return result;
+    }
+})();
+
+jQuery.noConflict();
 jQuery( document ).ready(function( $ ) {
-    var tws      = new Tws();
-    var myMovies     = tws.getMovies('featured');
-    var myMovie      = tws.getMovie('000');
+    //var tws      = new Tws();
+    //var myMovies     = tws.getMovies('featured');
+    //var myMovie      = tws.getMovie('000');
     //var myPhotolinks = tws.getPhotolinks(myMovie.id);
-    var myTrackms    = tws.getTrackms(myMovie.id);
+    //var myTrackms    = tws.getTrackms(myMovie.id);
     moviePosition = 0;
+    $('#telll-controls').slideDown();
+    panelOpen = 1;
 
     // mantain the full window viewport
     _fullWindow();
@@ -31,12 +46,11 @@ jQuery( document ).ready(function( $ ) {
      * TODO: make a class
     */
     // inject navbar on control top
-    $('#telll-top-controls').append($('#mainnav'));
-    $('#mainnav').css('margin-top','3px');
+    //$('#telll-top-controls').append($('#mainnav'));
+    //$('#mainnav').css('margin-top','3px');
 
     /** Create top controls
      * TODO: make a class
-     */
     topOpen = 0;
     $( document ).on( "mousemove", function( event ) {
          if (event.pageY < 40 && topOpen == 0){
@@ -50,10 +64,16 @@ jQuery( document ).ready(function( $ ) {
              setTimeout(function(){topOpen = 1;},600);
          }
     });
+    $('#telll-top-controls').on("touchstart" , function(event){
+         if (topOpen == 1){
+             setTimeout(function(){$('#telll-top-controls').slideUp();},5000);
+             setTimeout(function(){topOpen = 0;},5600);
+         }
+    });
     $('#telll-top-controls').on("mouseleave" , function(event){
          if (topOpen == 1){
-             $('#telll-top-controls').slideUp();
-             setTimeout(function(){topOpen = 0;},600);
+             setTimeout(function(){$('#telll-top-controls').slideUp();},5000);
+             setTimeout(function(){topOpen = 0;},5600);
          }
     });
     $('#menu-item-0').on('click', function(e){window.location.href='/';e.preventDefault();});
@@ -61,28 +81,85 @@ jQuery( document ).ready(function( $ ) {
     $('#menu-item-2').on('click', function(e){window.location.href='/clickbox.html';e.preventDefault();});
     $('#menu-item-3').on('click', function(e){window.location.href='/player.html';e.preventDefault();});
  
+     */
     /** Create panel controls
      * TODO: make a class
      */
-    panelOpen = 0;
-    $( document ).on( "mousemove", function( event ) {
+    //panelOpen = 0;
+    $( document ).on( "touchstart", function( event ) {
          if (event.pageY > (theHeight - 40) && panelOpen == 0){
              $('#telll-controls').slideDown();
              //$('#telll-pkt').animate({height:"-=50"},600);
              panelOpen = 1;
          }
     });
+    $( document ).on( "touchstart", function( event ) {
+         if (event.pageY < (theHeight - 110) && panelOpen == 1){
+             setTimeout(function(){ $('#telll-controls').slideUp(); },5000);
+             setTimeout(function(){ panelOpen = 0; },5600);
+         }
+    });
+    $( document ).on( "mousemove", function( event ) {
+         if (event.pageY > (theHeight - 40) && panelOpen == 0){
+             $('#telll-controls').slideDown();
+             panelOpen = 1;
+         }
+    });
     $( document ).on( "mousemove", function( event ) {
          if (event.pageY < (theHeight - 110) && panelOpen == 1){
-             $('#telll-controls').slideUp();
-             //$('#telll-pkt').animate({height:"+=50"},600);
-             panelOpen = 0;
+             setTimeout(function(){ $('#telll-controls').slideUp(); },5000);
+             setTimeout(function(){ panelOpen = 0; },5600);
          }
     });
 
+
     createPhotolinksPanel(); // TODO it must be myPhpnl = new PhPanel();
+    $('#telll-warn').on('click',function(e){
+        tagDefaultView();
+/* handle double click
+		var $this = $(this);
+                e.preventDefault();
+		if ($this.hasClass('clicked')){
+		    $this.removeClass('clicked');
+		    console.log("Double click in logo");
+
+	            // pause the movie
+                    thePlayer.setPause();
+
+                    // show dialog with photolinked webpage
+		    $('body').append('<div id="ph-dialog-'+plId+'"><iframe width="100%" height="100%" src="/cgi-bin/mirror.pl?url='+myPl.links[0].url+'"></div>');
+		    $( "#ph-dialog-"+plId ).dialog({
+		       modal: true,
+                       width: '80%',
+                       height: theHeight - 5,
+                       title: myPl.links[0].title,
+		       buttons: {
+			 Close: function() {
+			   $( this ).dialog( "close" );
+			 }
+		       }
+		    });
+                    $( "#ph-dialog-"+plId ).dialog( "open" );
+
+		}else{
+		     $this.addClass('clicked');
+		     setTimeout(function() {
+			 if ($this.hasClass('clicked')){
+			     $this.removeClass('clicked');
+			     console.log("Just one click!");
+                             sendPhotolink(plId);
+			 }
+		     }, 500);
+		}
+*/
+    });
+    $('#telll-warn').on('touchstart',function(e){
+        tagDefaultView();
+    });
+
 
     // Panel buttons
+/* disabled
     $('#rgb-buttons .rbtn').on('click',function(e){
         tagDefaultView();
     });
@@ -100,7 +177,7 @@ jQuery( document ).ready(function( $ ) {
     $('#settings-button'  ).on('click',function(e){
         $( "#settingspanel" ).panel( "open");
     });
-
+*/
     var panelSliding = 0;
     $('#return-button'  ).on('click',function(e){
          if (panelSliding == 0){
@@ -164,7 +241,7 @@ jQuery( document ).ready(function( $ ) {
           tagDefaultView(); 
     }
     var mouseLeaveListener = function(){
-          tagNoneView(); 
+          setTimeout(function(){tagNoneView()},2000); 
     }
     // state listener callback
     var stateListener = function(state) {
@@ -216,6 +293,23 @@ jQuery( document ).ready(function( $ ) {
         }
     }
 
+    /** projekktor toolbar change
+     * align logo
+    */
+    $('.ppcontrols').bind('cssClassChanged', function(){
+        if ($('.ppcontrols').hasClass('active')){
+            //console.log('Controls active');
+            $("#telll-warn").css({
+                   "bottom" : '40px'
+            });
+        } else {
+            //console.log('Controls out');
+             $("#telll-warn").css({
+                   "bottom" : '10px'
+            });
+        }
+    });
+
     /** tagViews functions
      */
     function tagDefaultView(){
@@ -224,6 +318,7 @@ jQuery( document ).ready(function( $ ) {
         $('.tag').removeClass('tag-yellow');
         $('.tag').addClass('tag-default');
         $('.tag *').on('mouseover',function(){tagDefaultView()});
+        $('.tag *').on('touchstart',function(){tagDefaultView()});
     }
     function tagNoneView(){
         $('.tag').removeClass('tag-default');
@@ -237,15 +332,23 @@ jQuery( document ).ready(function( $ ) {
     */
     function flashBalls() {
         console.log('Flashing!!!');
-        $("#telll-warn").css({"background-image": "url('../img/flash_balls.gif')"});
+        $("#telll-warn").css({
+               "background-image": "url('../img/logo_3l_bbg.png')",
+               "background-repeat": "no-repeat",
+               "cursor": "pointer",
+               "opacity": "0.6",
+               "background-size" : "44px 44px"
+        });
         $("#telll-warn").fadeIn(800, function(){
             $("#telll-warn").css({
-               "background-image": "url('../img/flash_balls.gif')",
-               "background-repeat": "no-repeat"
+               "background-image": "url('../img/logo_3l_bbg.png')",
+               "background-repeat": "no-repeat",
+               "background-size" : "44px 44px"
             });
+            // close after 5 seconds TODO: use a var
             setTimeout(function(){
                 $("#telll-warn").fadeOut();
-            },1800);
+            },5000);
         });
     }
 
@@ -322,10 +425,8 @@ jQuery( document ).ready(function( $ ) {
                 $('#pl-'+plId).css({'width':'20%','height':'18%'});
                 $('#pl-'+plId).fadeIn();
 
-                // When double clicked
-                // Dialog with link
-                // When single clicked
-                // Send photolink
+                // When double clicked -> Dialog with link
+                // When single clicked -> Send photolink
                 $('#pl-'+plId+' *').click(function (e) {
 		var $this = $(this);
                 e.preventDefault();
@@ -336,8 +437,7 @@ jQuery( document ).ready(function( $ ) {
 	            // pause the movie
                     thePlayer.setPause();
 
-                    // show dialog
- 	            //$('body').append('<div id="ph-dialog-'+plId+'"><iframe src="'+myPl.links[0].url+'"</div>');
+                    // show dialog with photolinked webpage
 		    $('body').append('<div id="ph-dialog-'+plId+'"><iframe width="100%" height="100%" src="/cgi-bin/mirror.pl?url='+myPl.links[0].url+'"></div>');
 		    $( "#ph-dialog-"+plId ).dialog({
 		       modal: true,
@@ -345,7 +445,7 @@ jQuery( document ).ready(function( $ ) {
                        height: theHeight - 5,
                        title: myPl.links[0].title,
 		       buttons: {
-			 Ok: function() {
+			 Close: function() {
 			   $( this ).dialog( "close" );
 			 }
 		       }
@@ -387,17 +487,28 @@ jQuery( document ).ready(function( $ ) {
     */
     function sendPhotolink (photolinkId){
         console.log("Sending photolink ... "+photolinkId);
-       
-
-        var xhr = new XMLHttpRequest();
-        var headers =  {"X-Api-Key": 123, "X-Auth-Key": "395fb7b657db2fb5656f34de3840e73c90b79c31"}; 
-        xhr.open('POST', 'http://52.3.72.192:3000/app/photolink/send/0/'+photolinkId, true);
-        for(var key in headers) {
-                xhr.setRequestHeader(key, headers[key]);
-        }
-
-        xhr.send('{"movie": "0"}');
-        console.log("Sent!");
+        $("<div data-role='popup' class='telll-popup'>Photolink sent!</div>").appendTo('body');
+        $( ".telll-popup" ).popup();
+        $( ".telll-popup" ).popup( "open", null );
+        setTimeout(function(){
+            $( ".telll-popup" ).popup('close');
+            $( ".telll-popup" ).detach();
+        },2000);
+        var saas = new tws('http://52.3.72.192:3000');
+        var data = {
+            'username': "mock_01",
+            'password': "blablabla",
+            'model':'iPad'
+        };
+        var xhr = saas.login(data);
+        xhr.addEventListener('load', function(){
+            console.log(this.responseText);
+            var jsData = JSON.parse(this.responseText);
+            if (jsData.error) alert(jsData.error);
+            authKey = jsData.auth_key;
+            saas.setHeaders({"X-API-Key": 123, "X-Auth-Key": authKey});
+	    saas.sendPhotolink('{"extradata":"blablabla"}');
+        });
    }
 
     /**

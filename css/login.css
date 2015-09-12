@@ -1,0 +1,52 @@
+body.login{
+background: #000;
+}
+nav {
+display:none;
+}
+span.red{
+color:#ff0000;
+}
+span.green{
+color:#00FF00;
+}
+span.blue{
+color:#0000FF;
+}
+.welcome{
+margin-top:-75px;
+margin-bottom:50px;
+font-size:28px;
+}
+.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
+background-color: #696969;
+border-color: #bbb;
+color: #aaa;
+text-shadow: none;
+}
+.telll-content {
+border-color: #bbb;
+border-radius: 10px;
+box-shadow: 3px 3px 2px #444;
+background-color: #222;
+width:260px;
+height:270px;
+padding:40px;
+margin:auto;
+margin-top:60px;
+/* position: absolute;
+top: 50px; left: 0; bottom: 0; right: 0;*/
+}
+.buttons{
+margin-top:25px;
+}
+.logo-86x86 {
+background:url('../img/logo_3l_bbg.png');
+background-size: 86px 86px;
+background-repeat: no-repeat;
+width:86px;
+height:86px;
+margin-bottom:20px;
+margin-top: -20px;
+cursor:pointer;
+}
