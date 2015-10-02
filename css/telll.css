@@ -55,6 +55,7 @@ background: rgba(255,255,255,0.7);
 padding: 8px;
 display: table-cell;
 vertical-align: middle;
+color: black;
 }
 .tag .tag-label a:link{
 text-decoration:none;
@@ -83,6 +84,7 @@ background-size: 44px 44px;
 display:none;
 cursor:pointer;
 }
+#clickbox{display:none}
 #status{}
 #colophon{display:none}
 #telll-player-frame{
@@ -195,6 +197,25 @@ display:none;
 .photolink-icon{
 border:1px solid #fff;
 max-width: 100%;
+}
+.photolink-list-element{
+width: 100%;
+border: 1px solid rgba(146, 146, 146, 0.73);
+height: 100px;
+margin: 3px;
+}
+.photolink-thumb{float:left;clear:left}
+.photolink-thumb-image{height: 97px;}
+.photolink-title{
+float:left;
+width:30%;
+margin:10px;
+font-size: 24px
+}
+.photolink-description{
+float:left;
+clear:right;
+width:40%;
 }
 .title-post{
 display:none;

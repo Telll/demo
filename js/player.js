@@ -2,7 +2,7 @@
  * implements a player using projekktor
  * Author: Monsenhor <monsenhor@cpan.org>
  * Date: 2015 Aug
- * Needs telll.js Version: 0.14
+ * Needs telll.js Version: 0.15
  */
 
 var theHeight;
@@ -10,17 +10,73 @@ var moviePosition;
 var authKey;
 var deviceModel;
 var user;
+var photolinksSent=[];
+var actualPhotolink = 0;
+var highlightedPhotolink = 0;
+var phListSize = 7;
+var phListElementWidth = 77;
+var agent = navigator.userAgent.toLowerCase();
 
-// Create event to listen when jquery change a class
-(function(){
-    var originalAddClassMethod = jQuery.fn.addClass;
-    jQuery.fn.addClass = function(){
+// detect ios
+var isiOS = false;
+if(agent.indexOf('iphone') >= 0 || agent.indexOf('ipad') >= 0){
+    isiOS = true;
+}
+// detect android
+var isAndroid = false;
+if(agent.indexOf('android') >= 0 ){
+       isAndroid = true;
+}
+// play movie at youtube
+var isYoutube = false;
+if (location.search == "?youtube") {
+   isYoutube = true;
+} 
+
+(function($){
+    // Create event to listen when jquery changes a class
+    // We need that to trigger the projekktor toolbar and reposition the warn tool
+    var originalAddClassMethod = $.fn.addClass;
+    $.fn.addClass = function(){
         var result = originalAddClassMethod.apply( this, arguments );
         // trigger a custom event
-        jQuery(this).trigger('cssClassChanged');
+        $(this).trigger('cssClassChanged');
         return result;
     }
-})();
+
+    // Create the doubletap method 
+    // based on http://appcropolis.com/blog/howto/implementing-doubletap-on-iphones-and-ipads/
+    $.fn.doubletap = function(onDoubleTapCallback, onTapCallback, delay){
+        var eventName, action;
+        delay = delay == null? 500 : delay;
+        eventName = isiOS == true || isAndroid == true ? 'touchend' : 'click';
+ 
+        $(this).on(eventName, function(event){
+            var now = new Date().getTime();
+            /** the first time this will make delta a negative number */
+            var lastTouch = $(this).data('lastTouch') || now + 1;
+            var delta = now - lastTouch;
+            clearTimeout(action);
+            if(delta<500 && delta>0){
+                if(onDoubleTapCallback != null && typeof onDoubleTapCallback == 'function'){
+                    event.preventDefault();
+                    onDoubleTapCallback(event);
+                }
+            }else{
+                $(this).data('lastTouch', now);
+                action = setTimeout(function(evt){
+                    if(onTapCallback != null && typeof onTapCallback == 'function'){
+                        event.preventDefault();
+                        onTapCallback(event);
+                    }
+                    clearTimeout(action);   // clear the timeout
+                }, delay, [event]);
+            }
+            $(this).data('lastTouch', now);
+        });
+        return this;
+    };
+})(jQuery);
 
 jQuery.noConflict();
 jQuery( document ).ready(function( $ ) {
@@ -31,7 +87,7 @@ jQuery( document ).ready(function( $ ) {
     //var myTrackms    = tws.getTrackms(myMovie.id);
     moviePosition = 0;
     $('#telll-controls').slideDown();
-    panelOpen = 1;
+    var panelOpen = 1;
 
     // mantain the full window viewport
     _fullWindow();
@@ -87,26 +143,26 @@ jQuery( document ).ready(function( $ ) {
      */
     //panelOpen = 0;
     $( document ).on( "touchstart", function( event ) {
-         if (event.pageY > (theHeight - 40) && panelOpen == 0){
+         if (event.pageY > (theHeight - 120) && panelOpen == 0){
              $('#telll-controls').slideDown();
              //$('#telll-pkt').animate({height:"-=50"},600);
              panelOpen = 1;
          }
     });
     $( document ).on( "touchstart", function( event ) {
-         if (event.pageY < (theHeight - 110) && panelOpen == 1){
+         if (event.pageY < (theHeight - 160) && panelOpen == 1){
              setTimeout(function(){ $('#telll-controls').slideUp(); },5000);
              setTimeout(function(){ panelOpen = 0; },5600);
          }
     });
     $( document ).on( "mousemove", function( event ) {
-         if (event.pageY > (theHeight - 40) && panelOpen == 0){
+         if (event.pageY > (theHeight - 120) && panelOpen == 0){
              $('#telll-controls').slideDown();
              panelOpen = 1;
          }
     });
     $( document ).on( "mousemove", function( event ) {
-         if (event.pageY < (theHeight - 110) && panelOpen == 1){
+         if (event.pageY < (theHeight - 160) && panelOpen == 1){
              setTimeout(function(){ $('#telll-controls').slideUp(); },5000);
              setTimeout(function(){ panelOpen = 0; },5600);
          }
@@ -114,48 +170,40 @@ jQuery( document ).ready(function( $ ) {
 
 
     createPhotolinksPanel(); // TODO it must be myPhpnl = new PhPanel();
+/*
     $('#telll-warn').on('click',function(e){
         tagDefaultView();
-/* handle double click
-		var $this = $(this);
-                e.preventDefault();
-		if ($this.hasClass('clicked')){
-		    $this.removeClass('clicked');
-		    console.log("Double click in logo");
-
-	            // pause the movie
-                    thePlayer.setPause();
-
-                    // show dialog with photolinked webpage
-		    $('body').append('<div id="ph-dialog-'+plId+'"><iframe width="100%" height="100%" src="/cgi-bin/mirror.pl?url='+myPl.links[0].url+'"></div>');
-		    $( "#ph-dialog-"+plId ).dialog({
-		       modal: true,
-                       width: '80%',
-                       height: theHeight - 5,
-                       title: myPl.links[0].title,
-		       buttons: {
-			 Close: function() {
-			   $( this ).dialog( "close" );
-			 }
-		       }
-		    });
-                    $( "#ph-dialog-"+plId ).dialog( "open" );
-
-		}else{
-		     $this.addClass('clicked');
-		     setTimeout(function() {
-			 if ($this.hasClass('clicked')){
-			     $this.removeClass('clicked');
-			     console.log("Just one click!");
-                             sendPhotolink(plId);
-			 }
-		     }, 500);
-		}
-*/
+        sendPhotolink(actualPhotolink);
     });
     $('#telll-warn').on('touchstart',function(e){
         tagDefaultView();
+        sendPhotolink(actualPhotolink);
     });
+    //$('#telll-warn').dblclick(function (e) {
+*/
+    // the telll warn tool// TODO it must be twrn = new TWarn();
+    $('#telll-warn').doubletap(function (e) {
+        console.log('Double Click!!!');
+        thePlayer.setPause();
+        // show dialog with photolinked webpage
+        $('body').append('<div id="ph-dialog-'+actualPhotolink+'"><iframe width="100%" height="100%" src="/cgi-bin/mirror.pl?url='+myPhotolinks[actualPhotolink].links[0].url+'"></div>');
+        $( "#ph-dialog-"+actualPhotolink ).dialog({
+               modal: true,
+               width: '80%',
+               height: theHeight - 5,
+               title: myPhotolinks[actualPhotolink].links[0].title,
+               buttons: {
+        	 Close: function() {
+        	   $( this ).dialog( "close" );
+        	 }
+               }
+        });
+        $( "#ph-dialog-"+actualPhotolink ).dialog( "open" );
+    }, function(e){
+        console.log('Single Click!!!');
+        tagDefaultView();
+        sendPhotolink(actualPhotolink);
+    },400);
 
 
     // Panel buttons
@@ -180,40 +228,12 @@ jQuery( document ).ready(function( $ ) {
 */
     var panelSliding = 0;
     $('#return-button'  ).on('click',function(e){
-         if (panelSliding == 0){
-             panelSliding = 1;
              scrollPhotolinksPanel(-1);
-         }
     });
     $('#forward-button'  ).on('click',function(e){
-          if (panelSliding == 0){
-             panelSliding = 1;
              scrollPhotolinksPanel(1);
-         }
-    });
-    // mouse out : labels
-    $(".frame-icon *").on("mouseover",function(e){
-         var thisid=$( this ).attr('id');
-         //console.log(thisid);
-         $('label[for='+thisid+']' ).css("display","inline");
-    });
-    $(".frame-icon *").on("mouseleave",function(e){
-         $('label').css("display","none");
-    });
-    // touch : labels
-    $(".frame-icon *").on("touchstart",function(e){
-         var thisid=$( this ).attr('id');
-         //console.log(thisid);
-         $('label[for='+thisid+']' ).css("display","inline");
-    });
-    $(".frame-icon *").on("touchend",function(e){
-         $('label').css("display","none");
     });
 
-
-    $(".frame-icon *").click(function() {
-        sendPhotolink($(this).attr('id_photolink'));
-    });
 
 
     /** the movie player
@@ -226,6 +246,10 @@ jQuery( document ).ready(function( $ ) {
 	playerFlashMP3: 'js/projekktor/swf/StrobeMediaPlayback/StrobeMediaPlayback.swf',
         width: $('#telll-movie').width(),
         height: $('#telll-movie').height(),
+        disallowSkip: false,
+        //platforms: ['browser', 'flash'],
+        enableFullscreen: false,
+        useYTIframeAPI: true,
     }, function(player){
         // player listeners
         player.addListener('time', timeListener);
@@ -234,17 +258,35 @@ jQuery( document ).ready(function( $ ) {
         player.addListener('touchstart', mouseEnterListener);
         player.addListener('mouseleave', mouseLeaveListener);
         player.addListener('touchend', mouseLeaveListener);
+        // is youtube?
+        if (isYoutube){
+            var playlist = [
+               {
+                  0:{src:"http://www.youtube.com/watch?v=DrqsNNlnMvE", 
+                     type:"video/youtube"}
+               }   
+            ];
+            player.setFile(playlist);
+            player.setConfig( {platforms: ['flash']} );
+            player.setDebug(true);
+            console.log('Its Youtube');
+            console.log(player);
+        }
+        //player.setDebug(true);
         thePlayer = player;
     });
     // Video behaviors
+    // show labels when mouse over
     var mouseEnterListener = function(){
           tagDefaultView(); 
     }
+    // hide labels 5 seconds after mouse out
     var mouseLeaveListener = function(){
-          setTimeout(function(){tagNoneView()},2000); 
+          setTimeout(function(){tagNoneView()},5000); 
     }
     // state listener callback
     var stateListener = function(state) {
+    //console.log(state);
     switch(state) {
         case 'PLAYING':
         break;
@@ -257,6 +299,9 @@ jQuery( document ).ready(function( $ ) {
             $('.tag').detach();
 	    for (i = 0 ; i < animT.length ; i++) { clearTimeout(animT[i]); }
             for (i = 0 ; i < trackms.length; i++){ trackms[i].stopped = 1; }
+        break;
+        case 'COMPLETED':
+            showClickbox();
         break;
     }
     }
@@ -278,14 +323,15 @@ jQuery( document ).ready(function( $ ) {
             if ( value >= p1 && value <= p2 ) { // It's playing now!
                 if (trackms[i].stopped){
                     trackms[i].stopped = 0;
+                    actualPhotolink = trackms[i].photolink;
 //console.log('Photolink n: ');
 //console.log(trackms[i].photolink);
 //console.log('Actual ph: ');
 //console.log(actualPhotolink);
                     // scroll photolink panel to here
-                    scrollPhotolinksPanel(trackms[i].photolink - actualPhotolink);
+                    scrollPhotolinksPanel( actualPhotolink - highlightedPhotolink );
                     playTrackm(i); // animate tag
-                    flashBalls();  // at top left
+                    flashBalls();  // the warn element
                }
             } else {
                     trackms[i].stopped = 1;
@@ -327,11 +373,27 @@ jQuery( document ).ready(function( $ ) {
         $('.tag').addClass('tag-none');
     }
 
+    function showClickbox(){
+        //console.log('Opening clickbox ...');
+        $( "#clickbox" ).dialog({
+	   modal: true,
+           width: '60%',
+           height: theHeight - 15,
+           title: "Clickbox - Photolinks sent",
+	   buttons: {
+	     Close: function() {
+	       $( this ).dialog( "close" );
+	     }
+	   }
+        });
+        $( "#clickbox").dialog( "open" );
+    }
+
     /** flashBalls
     * Balls flashing with logo
     */
     function flashBalls() {
-        console.log('Flashing!!!');
+        //console.log('Flashing!!!');
         $("#telll-warn").css({
                "background-image": "url('../img/logo_3l_bbg.png')",
                "background-repeat": "no-repeat",
@@ -420,49 +482,39 @@ jQuery( document ).ready(function( $ ) {
          handle = setTimeout (function(t){
               // Create the tag if it doesn't exist
               if( !$('#pl-'+plId).length ){
-                $("body").append('<div id="pl-'+plId+'" class="tag tag-none"><div class="clkbl"><div class="tag-label"><a target="_blank" href="'+myPl.links[0].url+'">'+myPl.links[0].title+'</a></div></div></div>');
+                //$("body").append('<div id="pl-'+plId+'" class="tag tag-none"><div class="clkbl"><div class="tag-label"><a target="_blank" href="'+myPl.links[0].url+'">'+myPl.links[0].title+'</a></div></div></div>');
+                $("body").append('<div id="pl-'+plId+'" class="tag tag-none"><div class="clkbl"><div class="tag-label">'+myPl.links[0].title+'</div></div></div>');
                 $('#pl-'+plId).css({'left':x1,'top':y1});
                 $('#pl-'+plId).css({'width':'20%','height':'18%'});
                 $('#pl-'+plId).fadeIn();
 
                 // When double clicked -> Dialog with link
-                // When single clicked -> Send photolink
-                $('#pl-'+plId+' *').click(function (e) {
-		var $this = $(this);
-                e.preventDefault();
-		if ($this.hasClass('clicked')){
-		    $this.removeClass('clicked');
-		    console.log("Double click");
-
-	            // pause the movie
+                //$('#pl-'+plId+' *').dblclick(function (e) {
+                $('#pl-'+plId+' *').doubletap(function (e) {
+        console.log('Double Click!!!');
                     thePlayer.setPause();
-
                     // show dialog with photolinked webpage
 		    $('body').append('<div id="ph-dialog-'+plId+'"><iframe width="100%" height="100%" src="/cgi-bin/mirror.pl?url='+myPl.links[0].url+'"></div>');
 		    $( "#ph-dialog-"+plId ).dialog({
-		       modal: true,
-                       width: '80%',
-                       height: theHeight - 5,
-                       title: myPl.links[0].title,
-		       buttons: {
-			 Close: function() {
-			   $( this ).dialog( "close" );
-			 }
-		       }
+		           modal: true,
+                           width: '80%',
+                           height: theHeight - 5,
+                           title: myPl.links[0].title,
+		           buttons: {
+		    	 Close: function() {
+		    	   $( this ).dialog( "close" );
+		    	 }
+		           }
 		    });
                     $( "#ph-dialog-"+plId ).dialog( "open" );
 
-		}else{
-		     $this.addClass('clicked');
-		     setTimeout(function() {
-			 if ($this.hasClass('clicked')){
-			     $this.removeClass('clicked');
-			     console.log("Just one click!");
-                             sendPhotolink(plId);
-			 }
-		     }, 500);
-		}
-		});
+		},
+                // When single clicked -> Send photolink
+                //$('#pl-'+plId+' *').click(
+                function (e) {
+        console.log('Single Click!!!');
+                    sendPhotolink(plId);
+		},400);
 
               } // Tag created. Animate it!
               $('#pl-'+plId).animate({
@@ -486,7 +538,14 @@ jQuery( document ).ready(function( $ ) {
      * @param id
     */
     function sendPhotolink (photolinkId){
+        var plHtml = "";
+        photolinksSent.push(myPhotolinks[photolinkId]);
+        console.log(photolinksSent);
+        for (i=0; i<photolinksSent.length; i++){
+            plHtml += "<div class='photolink-list-element'><a href='"+photolinksSent[i].links[0].url+"'><span class='photolink-thumb'><img class='photolink-thumb-image' src='"+photolinksSent[i].thumb+"'></span><span class=photolink-title>"+photolinksSent[i].links[0].title+"</span><span class='photolink-description'>"+photolinksSent[i].links[0].description+"</span></a></div>";
+        }
         console.log("Sending photolink ... "+photolinkId);
+        $('#clickbox').html(plHtml);
         $("<div data-role='popup' class='telll-popup'>Photolink sent!</div>").appendTo('body');
         $( ".telll-popup" ).popup();
         $( ".telll-popup" ).popup( "open", null );
@@ -502,7 +561,7 @@ jQuery( document ).ready(function( $ ) {
         };
         var xhr = saas.login(data);
         xhr.addEventListener('load', function(){
-            console.log(this.responseText);
+            //console.log(this.responseText);
             var jsData = JSON.parse(this.responseText);
             if (jsData.error) alert(jsData.error);
             authKey = jsData.auth_key;
@@ -521,31 +580,129 @@ jQuery( document ).ready(function( $ ) {
 	    // Fill panel with photolinks
 	    photolinks = myPhotolinks;
 	    //console.log(photolinks);
-	    $("#panel").html(""); // clean it
+	    $("#panel-slider").html(""); // clean panel
 	    for (i = 0; i < photolinks.length; ++i) {
 	       //console.log(photolinks[i]);
-	       $("#panel").append('<div class="frame-icon"><img class="photolink-icon" id="icon_'+photolinks[i].id+'" src="'+photolinks[i].thumb+'" id_photolink='+photolinks[i].id+'><label for="icon_'+photolinks[i].id+'">'+photolinks[i].links[0].title+'<label></div>');
+	       $("#panel-slider").append('<div class="frame-icon"><img class="photolink-icon" id="icon_'+photolinks[i].id+'" src="'+photolinks[i].thumb+'" id_photolink='+photolinks[i].id+'><label for="icon_'+photolinks[i].id+'">'+photolinks[i].links[0].title+'<label></div>');
 	    }
-            highlightPhotolink(0);
+            // mouse out : labels
+            $(".frame-icon *").on("mouseover",function(e){
+                 var thisid=$( this ).attr('id');
+                 //console.log(thisid);
+                 $('label[for='+thisid+']' ).css("display","inline");
+            });
+            $(".frame-icon *").on("mouseleave",function(e){
+                 $('label').css("display","none");
+            });
+            // touch : labels
+            $(".frame-icon *").on("touchstart",function(e){
+                 var thisid=$( this ).attr('id');
+                 //console.log(thisid);
+                 $('label[for='+thisid+']' ).css("display","inline");
+            });
+            $(".frame-icon *").on("touchend",function(e){
+                 $('label').css("display","none");
+            });
+/*
+            $(".frame-icon *").click(function() {
+                sendPhotolink($(this).attr('id_photolink'));
+            });
+            //$('.frame-icon *').dblclick(function (e) {
+*/
+            $('.frame-icon *').doubletap( function (e) {
+                console.log('Double Click!!!');
+                thePlayer.setPause();
+                var ap = parseInt($(e.srcElement).attr('id_photolink'));
+                // show dialog with photolinked webpage
+                $('body').append('<div id="ph-dialog-'+ap+'"><iframe width="100%" height="100%" src="js/projekktor/themes/maccaco/buffering.gif"/></div>');
+                //path = '/cgi-bin/mirror.pl?url='+myPhotolinks[ap].links[0].url;
+                path = myPhotolinks[ap].links[0].url;
+                $( "#ph-dialog-"+ap+" iframe" ).attr('src', path);
+                $( "#ph-dialog-"+ap ).dialog({
+                       modal: true,
+                       width: '80%',
+                       height: theHeight - 5,
+                       title: myPhotolinks[ap].links[0].title,
+                       buttons: {
+                	 "See in the movie": function() {
+                           var position = trackms[ap].points[0].t;
+                	   $( this ).dialog( "close" );
+                           thePlayer.setPlay();
+                           setTimeout(function(){
+                           thePlayer.setPlayhead(Number(position.toString()));
+                           actualPhotolink = ap;
+                           },500);
+                           $("<div data-role='popup' class='telll-popup'>Searching tag on movie ...</div>").appendTo('body');
+                           $( ".telll-popup" ).popup();
+                           $( ".telll-popup" ).popup( "open", null );
+                           setTimeout(function(){
+                               $( ".telll-popup" ).popup('close');
+                               $( ".telll-popup" ).detach();
+                           },2000);
+
+                	 }
+                       }
+                });
+                $( "#ph-dialog-"+ap ).dialog( "open" );
+            }, function(e){
+              console.log('Single Click!!!');
+              var ap = parseInt($(e.srcElement).attr('id_photolink'));
+              console.log('Sendind Photolink ');
+              console.log(this);
+              sendPhotolink(ap);
+            },400);
+            //highlightPhotolink(0);
     }
-    var actualPhotolink = 0;
     function scrollPhotolinksPanel(n){
-            actualPhotolink += n;
-	    pls = $("#panel").find('.frame-icon');
-            if (actualPhotolink > pls.length-1){actualPhotolink = pls.length-1}
-            if (actualPhotolink < 0){actualPhotolink = 0; panelSliding = 0;return 0;}
-            //console.log(actualPhotolink);
-            if (actualPhotolink == 0){ highlightPhotolink(0); panelSliding = 0;return 0; }
-            if (actualPhotolink == 1){ highlightPhotolink(1); panelSliding = 0;return 0; }
-            if (actualPhotolink == 2){ highlightPhotolink(2); panelSliding = 0;return 0; }
-            if (actualPhotolink == 3 && n === 1){ highlightPhotolink(3); panelSliding = 0;return 0; }
-            if (actualPhotolink == pls.length-1){
+            //console.log("Scrolled by:");
+            //console.log(n);
+            highlightedPhotolink += n;
+            //console.log("Highlighted Photolink:");
+            //console.log(highlightedPhotolink);
+	    pls = $("#panel").find('.frame-icon img');
+            //console.log(pls);
+            // Catching some errors
+            if (highlightedPhotolink > pls.length-1){
+                highlightedPhotolink = parseInt(pls.length)-1;
+            }
+            if (highlightedPhotolink < 0){
+                highlightedPhotolink = 0; 
+            }
+            
+            highlightPhotolink(highlightedPhotolink);
+
+            // Scroll panel to position
+            // claculate offset
+            var ml = 0;
+            pls.each(function(i){
+                if (parseInt(pls.eq(i).attr('id_photolink')) < highlightedPhotolink - Math.round(phListSize/2) 
+                //   && highlightedPhotolink < parseInt(pls.length) - Math.round(phListSize/2)
+                ){
+                    ml ++; 
+                }
+            });
+            var of = ml * phListElementWidth * -1;
+            $('#panel-slider').animate({
+                 'margin-left' : of+"px" 
+            }, 400, function(){
+	        //pls.eq(0).insertAfter(pls.eq(pls.length-1));
+	        //pls.eq(0).css('margin-left',ml);
+                //panelSliding = 0;
+                console.log('Panel scrolled by: '+of);
+            });
+
+            /*
+            if (highlightedPhotolink == 0){ highlightPhotolink(0); panelSliding = 0;return 0; }
+            if (highlightedPhotolink == 1){ highlightPhotolink(1); panelSliding = 0;return 0; }
+            if (highlightedPhotolink == 2){ highlightPhotolink(2); panelSliding = 0;return 0; }
+            if (highlightedPhotolink == 3 && n === 1){ highlightPhotolink(3); panelSliding = 0;return 0; }
+            if (highlightedPhotolink == pls.length-1){
                     highlightPhotolink(6); panelSliding = 0;return 0; }
-            if (actualPhotolink == pls.length-2 ){
+            if (highlightedPhotolink == pls.length-2 ){
                     highlightPhotolink(5); panelSliding = 0;return 0; }
-            if (actualPhotolink == pls.length-3){
+            if (highlightedPhotolink == pls.length-3){
                     highlightPhotolink(4); panelSliding = 0;return 0; }
-            if (actualPhotolink == pls.length-4 && n === -1){
+            if (highlightedPhotolink == pls.length-4 && n === -1){
                     highlightPhotolink(3); panelSliding = 0;return 0; }
             ml = pls.css('margin-left');
             mwidth = '-120px';
@@ -579,19 +736,27 @@ jQuery( document ).ready(function( $ ) {
            setTimeout(function(){
                highlightPhotolink(3); panelSliding = 0;
            },450);
+           */
     }
-
     function highlightPhotolink(n){
-        //console.log('highlighting '+n);
-        pls = $("#panel").find('.frame-icon');
-        //console.log(pls.eq(n));
+        pls = $("#panel").find('.frame-icon img');
+        console.log('---> '+n);
+        console.log(pls.eq(n));
         pls.each(function(i){
-            newSrc = pls.eq(i).find('img').attr('src').replace("_green.jpg", ".jpg");
-            pls.eq(i).find('img').attr('src', newSrc);
+            //console.log(pls.eq(i).attr('id_photolink'));
+            //newSrc = pls.eq(i).find('img').attr('src').replace("_green.jpg", ".jpg");
+            //pls.eq(i).find('img').attr('src', newSrc);
+            if (parseInt(pls.eq(i).attr('id_photolink')) != n ){
+                pls.eq(i).css('opacity', '0.3');
+            } else {
+                pls.eq(n).css('opacity', '1');
+                console.log('highlighting '+n);
+            }
         });
         // highlight actual photolink
-        newSrc = pls.eq(n).find('img').attr('src').replace(".jpg", "_green.jpg");
-        pls.eq(n).find('img').attr('src', newSrc);
+        //newSrc = pls.eq(n).find('img').attr('src').replace(".jpg", "_green.jpg");
+        //pls.eq(n).find('img').attr('src', newSrc);
+        //pls.eq(n).css({'width':'96px','height':'52px'});
     }
 
     _fullWindow();
