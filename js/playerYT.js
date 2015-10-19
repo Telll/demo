@@ -16,6 +16,7 @@ var highlightedPhotolink = 0;
 var phListSize = 7;
 var phListElementWidth = 77;
 var agent = navigator.userAgent.toLowerCase();
+var playMovie;
 
 // detect ios
 var isiOS = false;
@@ -29,8 +30,9 @@ if(agent.indexOf('android') >= 0 ){
 }
 // play movie at youtube
 var isYoutube = false;
-if (location.search == "?youtube") {
+if (location.search.indexOf("?youtube") >= 0) {
    isYoutube = true;
+   console.log('Its Youtube');
 } 
 
 (function($){
@@ -43,8 +45,23 @@ if (location.search == "?youtube") {
         $(this).trigger('cssClassChanged');
         return result;
     }
+    // Create the QueryString jQuery plugin
+    $.queryString = (function(a) {
+        console.log('Query string:' + a);
+        if (a == "") return {};
+        var b = {};
+        for (var i = 0; i < a.length; ++i)
+        {
+            var p=a[i].split('=');
+            if (p.length != 2) continue;
+            b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+        }
+        console.log('Sol:');
+        console.log(b);
+        return b;
+    })(window.location.search.substr(1).split('&'));
 
-    // Create the doubletap method 
+    // Create the doubletap plugin
     // based on http://appcropolis.com/blog/howto/implementing-doubletap-on-iphones-and-ipads/
     $.fn.doubletap = function(onDoubleTapCallback, onTapCallback, delay){
         var eventName, action;
@@ -91,7 +108,7 @@ jQuery( document ).ready(function( $ ) {
 
     // mantain the full window viewport
     _fullWindow();
-    // flashBalls();
+    flashBalls();
     $( window ).resize(function() {
         _fullWindow();
     });
@@ -254,6 +271,8 @@ jQuery( document ).ready(function( $ ) {
         //platforms: ['browser', 'flash'],
         enableFullscreen: false,
         useYTIframeAPI: true,
+        autoplay:false,
+        continuous:false,
     }, function(player){
         // player listeners
         player.addListener('time', timeListener);
@@ -264,16 +283,19 @@ jQuery( document ).ready(function( $ ) {
         player.addListener('touchend', mouseLeaveListener);
         // is youtube?
         if (isYoutube){
+            console.log('Preparing Youtube movie ...');
+            var ytMovie = $.queryString['v'] || "ooWWBybEKHc";
+            console.log('Opening movie: '+ytMovie);
             var playlist = [
                {
-                  0:{src:"http://www.youtube.com/watch?v=ooWWBybEKHc", 
+                  0:{src:"http://www.youtube.com/watch?v="+ytMovie, 
                      type:"video/youtube"}
                }   
             ];
             player.setFile(playlist);
             player.setConfig( {platforms: ['flash']} );
+            player.setStop();
             player.setDebug(true);
-            console.log('Its Youtube');
             console.log(player);
         }
         //player.setDebug(true);
@@ -328,8 +350,8 @@ jQuery( document ).ready(function( $ ) {
                 if (trackms[i].stopped){
                     trackms[i].stopped = 0;
                     actualPhotolink = trackms[i].photolink;
-//console.log('Photolink n: ');
-//console.log(trackms[i].photolink);
+console.log('Photolink n: ');
+console.log(trackms[i].photolink);
 //console.log('Actual ph: ');
 //console.log(actualPhotolink);
                     // scroll photolink panel to here
@@ -397,13 +419,14 @@ jQuery( document ).ready(function( $ ) {
     * Balls flashing with logo
     */
     function flashBalls() {
-        //console.log('Flashing!!!');
+        console.log('Flashing!!!');
         $("#telll-warn").css({
                "background-image": "url('../img/logo_3l_bbg.png')",
                "background-repeat": "no-repeat",
                "cursor": "pointer",
                "opacity": "0.6",
-               "background-size" : "44px 44px"
+               "background-size" : "44px 44px",
+               "z-index": '10000000'
         });
         $("#telll-warn").fadeIn(800, function(){
             $("#telll-warn").css({
@@ -658,8 +681,8 @@ jQuery( document ).ready(function( $ ) {
             //highlightPhotolink(0);
     }
     function scrollPhotolinksPanel(n){
-            //console.log("Scrolled by:");
-            //console.log(n);
+            console.log("Scrolled by:");
+            console.log(n);
             highlightedPhotolink += n;
             //console.log("Highlighted Photolink:");
             //console.log(highlightedPhotolink);
