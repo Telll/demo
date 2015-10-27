@@ -16,17 +16,17 @@ jQuery( document ).ready(function( $ ) {
 
     //Intsntiate a photolinks
     //photolink = new Photolink($('#telll-photolink'));
-    //photolink = createPhotolink($('#telll-photolink'));
-
+    photolink = createPhotolink($('#telll-photolink'));
+    //updatePhotolinksList();
     // inject navbar on control top
-    $('#telll-top-controls').append($('#mainnav'));
-    $('#mainnav').attr('id', 'telll-nav');
+    //$('#telll-top-controls').append($('#mainnav'));
+    //$('#mainnav').attr('id', 'telll-nav');
     //$('#telll-top-controls').append($('#mainnav-mobi'));
     // top links
-    $('#menu-item-0').on('click', function(e){window.location.href='/';e.preventDefault();});
+    //$('#menu-item-0').on('click', function(e){window.location.href='/';e.preventDefault();});
     //$('#menu-item-1').on('click', function(e){window.location.href='/dashboard';e.preventDefault();});
-    $('#menu-item-2').on('click', function(e){window.location.href='/clickbox.html';e.preventDefault();});
-    $('#menu-item-3').on('click', function(e){window.location.href='/player.html';e.preventDefault();});
+    //$('#menu-item-2').on('click', function(e){window.location.href='/clickbox.html';e.preventDefault();});
+    //$('#menu-item-3').on('click', function(e){window.location.href='/player.html';e.preventDefault();});
     // screen behaviors:
     // on mouseup show controls
     topOpen = 0;
@@ -66,7 +66,7 @@ jQuery( document ).ready(function( $ ) {
 
     $('#photolink-image a').attr('href', myPhotolinks[0].links[0].url);
     $('#photolink-image').on('click', function(){
-//        console.log('Opening '+ myPhotolinks[0].links[0].url);
+        console.log('Opening '+ myPhotolinks[0].links[0].url);
 //        $(this).attr('href', myPhotolinks[0].links[0].url);
         //window.location.href=myPl.links[0].url;
 //        window.open(  myPhotolinks[0].links[0].url, 
@@ -85,7 +85,8 @@ jQuery( document ).ready(function( $ ) {
      * @param j : the photolink dom obj
      */
     function createPhotolink (j){
-        var saas = new tws('http://52.3.72.192:3000');
+        var saas = new tws('52.3.72.192:3000');
+        
         var data = {
             'username': "mock_01",
             'password': "blablabla",
@@ -94,13 +95,17 @@ jQuery( document ).ready(function( $ ) {
         //user = new User(data);
         var xhr = saas.login(data);
         xhr.addEventListener('load', function(){
-            console.log(this.responseText);
+            console.log('Geting photolink ... lp?');
             var jsData = JSON.parse(this.responseText);
             if (jsData.error) alert(jsData.error);
-            authKey = jsData.auth_key;
-            saas.setHeaders({"X-API-Key": 123, "X-Auth-Key": authKey});
-	var phData = "{'error':'unknown'}";
-	    lp = saas.getPhotolink();
+            saas.setHeaders({"X-API-Key": 123, "X-Auth-Key": jsData.auth_key});
+	    var phData = "{'error':'unknown'}";
+	    saas.getPhotolink(phData, function(e,d){
+                 console.log('Got!');
+                 if (e) alert (e);
+                updatePhotolinksList(d.photolink);
+            });
+/*
 	    lp.onData = function(data) {
 	        phData = data;
 	        jsData = JSON.parse(phData);
@@ -128,7 +133,7 @@ jQuery( document ).ready(function( $ ) {
                 },15000);
 	    };
 	lp.connect();
-
+*/
         });
     }
 
@@ -147,19 +152,37 @@ jQuery( document ).ready(function( $ ) {
         theHeight = $(window).height();
     }
 
+    /** showPhotolinkImag
+     */
+    function showPhotolinkImage (myPl){
+        console.log('Show photolink ...');
+        console.log (myPl);
+        $('#photolink-image img').attr('src', myPl.thumb);
+        $('#photolink-image').fadeIn(); 
+        setTimeout(function(){
+            $('#photolink-image').fadeOut(); 
+        }, 4000);
+    }
     /** updatePhotolinksList
      *
      */
     function updatePhotolinksList(myPl) {
-        var myList;
+        var myList = "";
+        var phmap = [];
+        console.log('Updating photolinks list ...');
         devicePhotolinks.push(myPl);
+        console.log(devicePhotolinks);
+        showPhotolinkImage(myPl);
         for(i=0; i<devicePhotolinks.length;i++){
             myPl = myPhotolinks[i];
+            //myPl = devicePhotolinks[i];
             console.log("Photolink "+i );
             console.log(myPl);
-            myList = '<div class="photolink-list-element"><img src="'+myPl.thumb+'"><span class="ple-title">'+myPl.title+'</span><span class="ple-desc">'+myPl.description+'</span></div>';
+            myList += '<div class="photolink-list-element"><a target="_blank" href="'+myPl.links[0].url+'"><div class="ple-img"><img src="'+myPl.thumb+'"></div><div class="ple-info"><span class="ple-title">'+myPl.links[0].title+'</span><br><span class="ple-desc">'+myPl.links[0].description+'</span></div></a></div>';
+            console.log(myList);
         }
-        $('#photolink-list *').detach();
-        $('#photolink-list').html(myList);
+        $('#clickbox-empty').detach();
+        $('#photolinks-list *').detach();
+        $('#photolinks-list').html(myList);
     }
  });

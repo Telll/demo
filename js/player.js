@@ -557,7 +557,7 @@ jQuery( document ).ready(function( $ ) {
             $( ".telll-popup" ).popup('close');
             $( ".telll-popup" ).detach();
         },2000);
-        var saas = new tws('http://52.3.72.192:3000');
+        var saas = new tws('52.3.72.192:3000');
         var data = {
             'username': "mock_01",
             'password': "blablabla",
@@ -570,7 +570,10 @@ jQuery( document ).ready(function( $ ) {
             if (jsData.error) alert(jsData.error);
             authKey = jsData.auth_key;
             saas.setHeaders({"X-API-Key": 123, "X-Auth-Key": authKey});
-	    saas.sendPhotolink('{"extradata":"blablabla"}');
+	    var send = saas.sendPhotolink(photolinkId, '{"photolinkbb":'+photolinkId+'}');
+            send.addEventListener('load', function(){
+                 console.log(this.responseText);
+            });
         });
    }
 

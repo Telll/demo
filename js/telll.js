@@ -28,7 +28,6 @@ Tws.prototype._init = function() {
    */
   this.m_movie = {};
   this.m_authKey = "0";
-
 }
 
 /**
@@ -186,14 +185,32 @@ tws = function (server)
 tws.prototype._init = function (server)
 {
 
-this.m_server = server;
+this.server = server;
 this.method;
 this.url;
 this.delimiter;
 this.headers;
 this.xhr;
-
 }
+
+tws.prototype.initWS = function (){
+    this.cws = new CommandWS(this.server);
+    this.cws.on("open", function() {
+         console.log('CWS Opened!!!');
+    });
+}
+
+tws.prototype.subscribePhotolink = function(cb) {
+    var ret = this.cws.cmd.photolink({
+        api_key:    this.api_key,
+        auth_key:   this.auth_key,
+    }, function(response) {
+        if(cb) cb.call(this, response.error, response.data);
+    });
+}
+
+
+
 /**
  * setHeaders
  */
@@ -242,7 +259,7 @@ tws.prototype.user = function (data)
  */
 tws.prototype.login = function (data)
 {
-var url = this.m_server+'/login';
+var url = "http://"+this.server+'/login';
 var ptype = "POST";
 this.headers = {"X-API-Key": 123}; 
 var msg = "Login on tws ...";
@@ -258,7 +275,11 @@ var msg = "Login on tws ...";
             console.log('Response');
             console.log(this.responseText);
             loginData = JSON.parse(this.responseText);
-            this.headers = {"X-API-Key": 123, "X-Auth-Key": loginData.auth_key}; 
+            this.headers = {
+                "X-API-Key": 123, 
+                "X-Auth-Key": loginData.auth_key,
+                "X-Device-ID": loginData.device
+            }; 
         });
         xhr.open(ptype , url, true);
         for(var key in this.headers) {
@@ -276,28 +297,50 @@ var msg = "Login on tws ...";
  * 
  * 
  */
-tws.prototype.getPhotolink = function ()
+tws.prototype.getPhotolink = function (data, cb)
 {
-	this.url = this.m_server+'/app/photolink/lp';
-        var lp = new LongPolling("GET", "http://52.3.72.192:3000/app/photolink/lp", "\n//----------//", this.headers);
+    this.initWS();
+   var me = this;
+    this.cws.on("open", function() {
+    console.log("The CWS:");
+    console.log(this.cws);
+    console.log(me.cws);
+ 
+	var ret = me.cws.cmd.photolink({
+	    api_key:    "123",
+	    auth_key:   me.headers['X-Auth-Key']
+	}, function(response) {
+	    if(cb) cb(response.error, response.data);
+	});
+    });
+
+
+/* Old lp implementation:
+	var url = "http://"+this.server+'/app/photolink/lp';
+        var lp = new LongPolling("GET", url, "\n//----------//", this.headers);
         //var lp = new LongPolling("GET", "http://52.3.72.192:3000/app/photolink/lp", "\n//----------//", {"X-Api-Key": 1234, "X-Auth-Key": "4574eb62ff5337ce17f3d657f3b74cbcf3f9cc42"});
         lp.create();
 	return lp;
+*/
 }
 
 /**
  * 
  * 
  */
-tws.prototype.sendPhotolink = function (str)
+tws.prototype.sendPhotolink = function (id, str)
 {
+        var phId = id;
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://52.3.72.192:3000/app/photolink/send/0/0', true);
+        console.log('Contacting TWS');
+        xhr.open('POST', 'http://52.3.72.192:3000/app/track_motion/'+phId+'/click', true);
         for(var key in this.headers) {
                 xhr.setRequestHeader(key, this.headers[key]);
         }
-
+        console.log(this.headers);
         xhr.send(str);
+        console.log(xhr);
+        return xhr;
 }
 
 //////////////////////////////////////////////////////
