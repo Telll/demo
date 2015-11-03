@@ -63,8 +63,6 @@ jQuery( document ).ready(function( $ ) {
     $('#telll-photolink').mouseover(function() {
          //$('#telll-bottom-controls').slideToggle();
     });
-
-    $('#photolink-image a').attr('href', myPhotolinks[0].links[0].url);
     $('#photolink-image').on('click', function(){
         console.log('Opening '+ myPhotolinks[0].links[0].url);
 //        $(this).attr('href', myPhotolinks[0].links[0].url);
@@ -102,8 +100,10 @@ jQuery( document ).ready(function( $ ) {
 	    var phData = "{'error':'unknown'}";
 	    saas.getPhotolink(phData, function(e,d){
                  console.log('Got!');
-                 if (e) alert (e);
-                updatePhotolinksList(d.photolink);
+                 //console.log(d);
+                 data = JSON.parse(d.extra_data);
+                 if (e) alert (e)
+                 else updatePhotolinksList(myPhotolinks[data.photolinkbb]);
             });
 /*
 	    lp.onData = function(data) {
@@ -155,9 +155,13 @@ jQuery( document ).ready(function( $ ) {
     /** showPhotolinkImag
      */
     function showPhotolinkImage (myPl){
-        console.log('Show photolink ...');
-        console.log (myPl);
-        $('#photolink-image img').attr('src', myPl.thumb);
+        var img = myPl.thumb.replace('_180x90','');
+        $('#photolink-image img.main').attr('src', img);
+        $('#photolink-image img.main').css({'width':'100%'});
+
+        $('#photolink-image a').attr('href', myPl.links[0].url);
+        $('#photolink-image a').attr('target', '_blank');
+
         $('#photolink-image').fadeIn(); 
         setTimeout(function(){
             $('#photolink-image').fadeOut(); 
@@ -168,18 +172,17 @@ jQuery( document ).ready(function( $ ) {
      */
     function updatePhotolinksList(myPl) {
         var myList = "";
-        var phmap = [];
         console.log('Updating photolinks list ...');
         devicePhotolinks.push(myPl);
         console.log(devicePhotolinks);
         showPhotolinkImage(myPl);
         for(i=0; i<devicePhotolinks.length;i++){
-            myPl = myPhotolinks[i];
-            //myPl = devicePhotolinks[i];
+            //myPl = myPhotolinks[i];
+            myPl = devicePhotolinks[i];
             console.log("Photolink "+i );
-            console.log(myPl);
+            //console.log(myPl);
             myList += '<div class="photolink-list-element"><a target="_blank" href="'+myPl.links[0].url+'"><div class="ple-img"><img src="'+myPl.thumb+'"></div><div class="ple-info"><span class="ple-title">'+myPl.links[0].title+'</span><br><span class="ple-desc">'+myPl.links[0].description+'</span></div></a></div>';
-            console.log(myList);
+            //console.log(myList);
         }
         $('#clickbox-empty').detach();
         $('#photolinks-list *').detach();

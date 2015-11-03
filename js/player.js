@@ -570,10 +570,14 @@ jQuery( document ).ready(function( $ ) {
             if (jsData.error) alert(jsData.error);
             authKey = jsData.auth_key;
             saas.setHeaders({"X-API-Key": 123, "X-Auth-Key": authKey});
-	    var send = saas.sendPhotolink(photolinkId, '{"photolinkbb":'+photolinkId+'}');
-            send.addEventListener('load', function(){
-                 console.log(this.responseText);
-            });
+	    var send = saas.sendPhotolink( {trackmotion: photolinkId, extra_data:'{"photolinkbb":'+photolinkId+'}'}, function (e,d){
+                    console.log('Sent!');
+                    console.log(e);
+                    console.log(d);
+             });
+            //send.addEventListener('load', function(){
+            //     console.log(this.responseText);
+            //});
         });
    }
 
@@ -654,8 +658,8 @@ jQuery( document ).ready(function( $ ) {
             }, function(e){
               console.log('Single Click!!!');
               var ap = parseInt($(e.srcElement).attr('id_photolink'));
-              console.log('Sendind Photolink ');
-              console.log(this);
+              //console.log('Sendind Photolink ... '+ap);
+              //console.log(this);
               sendPhotolink(ap);
             },400);
             //highlightPhotolink(0);

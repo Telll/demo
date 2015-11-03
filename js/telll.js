@@ -269,7 +269,7 @@ var msg = "Login on tws ...";
     if (data.username && data.password){
         // call tws to login
         var send = JSON.stringify(data);
-        console.log(send);
+        //console.log(send);
         var xhr = new XMLHttpRequest();
         xhr.addEventListener('load', function(){
             console.log('Response');
@@ -302,9 +302,8 @@ tws.prototype.getPhotolink = function (data, cb)
     this.initWS();
    var me = this;
     this.cws.on("open", function() {
-    console.log("The CWS:");
-    console.log(this.cws);
-    console.log(me.cws);
+    //console.log("The CWS:");
+    //console.log(this.cws);
  
 	var ret = me.cws.cmd.photolink({
 	    api_key:    "123",
@@ -328,8 +327,24 @@ tws.prototype.getPhotolink = function (data, cb)
  * 
  * 
  */
-tws.prototype.sendPhotolink = function (id, str)
+tws.prototype.sendPhotolink = function (data, cb)
 {
+    this.initWS();
+    var me = this;
+    this.cws.on("open", function() {
+	var ret = me.cws.cmd.click_trackmotion({
+	    api_key:    "1234",
+	    auth_key:   me.headers['X-Auth-Key'],
+            trackmotion:    data.trackmotion,
+            extra_data:     data.extra_data
+	}, function(response) {
+	    if(cb) cb(response.error, response.data);
+	});
+    });
+
+
+/* old implementation
+
         var phId = id;
         var xhr = new XMLHttpRequest();
         console.log('Contacting TWS');
@@ -341,6 +356,7 @@ tws.prototype.sendPhotolink = function (id, str)
         xhr.send(str);
         console.log(xhr);
         return xhr;
+*/
 }
 
 //////////////////////////////////////////////////////
